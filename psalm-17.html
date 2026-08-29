@@ -1905,7 +1905,7 @@ function startApp() {
     if (hasInitialized) return;
     hasInitialized = true;
     if (!window.PSALM_APP_DATA) {
-        alert('找不到 psalm-data-17.js，請確認 HTML 與資料檔在同一資料夾。');
+        alert('找不到 psalm-data-17.js，請確認 HTML 與 psalm-data-17.js 在同一資料夾。');
     } else if (!window.PSALM_APP_DATA.CLASSIFICATION) {
         alert('資料檔缺少 17 類 CLASSIFICATION，請使用 psalm-data-17.js。');
     }

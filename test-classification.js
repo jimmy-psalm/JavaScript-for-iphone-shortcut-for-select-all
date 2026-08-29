@@ -7,7 +7,7 @@ const path = require('path');
 
 const sandbox = { window: {}, console };
 vm.createContext(sandbox);
-vm.runInContext(fs.readFileSync(path.join(__dirname, 'psalm-data v2.js'), 'utf8'), sandbox);
+vm.runInContext(fs.readFileSync(path.join(__dirname, 'psalm-data-17.js'), 'utf8'), sandbox);
 
 const data = sandbox.window.PSALM_APP_DATA;
 if (!data) throw new Error('PSALM_APP_DATA missing');
@@ -53,7 +53,7 @@ ok(CLASSIFICATION.psalms['2'].major === '王國', 'psalm 2 王國');
 ok(CLASSIFICATION.psalms['8'].major === '讚美', 'psalm 8 讚美');
 
 const html = fs.readFileSync(path.join(__dirname, '0016 Psalm 17 type.html'), 'utf8');
-ok(html.includes('psalm-data v2.js'), 'html loads data file');
+ok(html.includes('psalm-data-17.js'), 'html loads data file');
 ok(html.includes('filterMajor'), 'filterMajor present');
 ok(html.includes('renderPsalmTagDots'), 'tag dots present');
 ok(html.includes('五大類 · 17類搜尋'), 'panel1 title');
