@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>詩篇全景 | 五大類·17類搜尋與經文朗讀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body { min-height: 100%; margin: 0; padding: 0; background: #f5f7fb; -webkit-text-size-adjust: 100%; }
+        .main-container {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+            gap: 12px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .panel-group { display: flex; flex-direction: column; gap: 12px; }
+        .panel-card { background: white; border-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.05); overflow: hidden; }
+        .psalm-grid-15 { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 4px; }
+        .psalm-cell { transition: all 0.1s ease; cursor: pointer; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.7rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 1px 2px rgba(0,0,0,0.05); background: #e2e8f0; color: #1e293b; }
+        .psalm-cell { appearance: none; -webkit-appearance: none; }
+        .psalm-cell:active { transform: scale(0.96); }
+        .psalm-cell.dimmed { opacity: 0.3; filter: grayscale(0.6); }
+        .psalm-cell.active { outline: 3px solid #1e293b; outline-offset: 2px; transform: scale(1.02); background: white; }
+        .matrix-scroll { max-height: 380px; overflow-y: auto; padding: 2px 2px 2px 0; scroll-behavior: smooth; }
+        .matrix-scroll::-webkit-scrollbar { width: 4px; }
+        .matrix-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 20px; }
+        .scripture-scroll { max-height: 280px; overflow-y: auto; padding: 0 4px 0 0; }
+        .verse-text { white-space: normal; word-break: break-word; line-height: 1.7; font-size: 0.9rem; }
+        .verse-number { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #b45309; background-color: #fffbeb; border-radius: 16px; padding: 0 8px; margin-right: 6px; vertical-align: baseline; line-height: 1.4; }
+        .verse-paragraph { margin-bottom: 0.75rem; }
+        .panel4 { flex-shrink: 0; margin-top: 4px; }
+        .legend-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; border-bottom: 1px solid #f1f5f9; cursor: pointer; border-radius: 14px; transition: background 0.1s; }
+        .legend-item { appearance: none; -webkit-appearance: none; width: 100%; text-align: left; background: transparent; }
+        .legend-item:active { background: #f8fafc; }
+        .legend-item.legend-active { outline: 2px solid #1e293b; outline-offset: 1px; background: #e2e8f0 !important; }
+        .legend-grid-2 { display: grid; grid-template-columns: 1fr; gap: 6px; }
+
+        .psalm-cell { border-radius: 50%; }
+        .psalm-cell.lit {
+            outline: 2px solid #1e293b;
+            outline-offset: 1px;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 10px rgba(250, 204, 21, 0.75);
+            opacity: 1;
+            filter: none;
+            z-index: 1;
+        }
+        .legend-group { margin-bottom: 6px; }
+        .legend-group-title {
+            appearance: none; -webkit-appearance: none;
+            width: 100%; text-align: left; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.78rem; font-weight: 800; color: #334155;
+            padding: 3px 6px; border-radius: 10px; border: none;
+            margin-bottom: 2px;
+        }
+        .legend-group-title.legend-active { outline: 2px solid #1e293b; outline-offset: 1px; }
+        .legend-item { padding: 3px 6px; }
+        .legend-item .type-dot {
+            width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+            box-shadow: 0 0 0 1px rgba(15,23,42,0.12);
+        }
+        #tagDots {
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+            margin-top: 6px;
+        }
+        .tag-dot {
+            width: 16px; height: 16px; border-radius: 50%;
+            border: 2px solid transparent; opacity: 0.22; cursor: pointer;
+            appearance: none; -webkit-appearance: none; padding: 0;
+            box-shadow: inset 0 0 0 1px rgba(15,23,42,0.15);
+        }
+        .tag-dot.lit {
+            opacity: 1; border-color: #1e293b;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.95), 0 0 8px rgba(250,204,21,0.7);
+            transform: scale(1.12);
+        }
+        .tag-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            border-radius: 9999px; padding: 2px 8px; font-size: 0.75rem;
+            font-weight: 700; cursor: pointer; border: 1px solid rgba(15,23,42,0.08);
+        }
+        .tag-pill.lit-pill { outline: 2px solid #1e293b; outline-offset: 1px; }
+
+        button, .psalm-cell, .legend-item { touch-action: manipulation; }
+        @media (min-width: 768px) {
+            .panel-group { display: grid; gap: 16px; }
+            .panel-group-top { grid-template-columns: 0.72fr 1.68fr; }
+            .panel-group-bottom { grid-template-columns: 1fr 1fr; }
+            .panel-group-bottom > :first-child { order: 2; }
+            .panel-group-bottom > :last-child { order: 1; }
+            .scripture-scroll { max-height: 320px; }
+            .panel-group-top .matrix-scroll {
+                max-height: none;
+                overflow-y: visible;
+                padding-right: 0;
+            }
+            .panel-group-top .psalm-grid-15 {
+                gap: 2px;
+            }
+            .psalm-cell { font-size: 0.66rem; border-radius: 50%; }
+        }
+        @media (min-width: 1200px) and (pointer: fine) {
+            .main-container {
+                height: 100vh;
+                min-height: 100vh;
+                overflow: hidden;
+                gap: 12px;
+            }
+            .panel-group {
+                height: calc((100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 36px) / 2);
+                min-height: 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .panel-group-top,
+            .panel-group-bottom {
+                grid-template-columns: 1fr 1fr;
+            }
+            .panel-group .panel-card,
+            .panel-group .panel4 {
+                height: 100%;
+                min-height: 0;
+            }
+            .panel-group-top .matrix-scroll,
+            .panel-group .scripture-scroll {
+                height: calc(100% - 46px);
+                max-height: none;
+                overflow-y: auto;
+            }
+            .panel-group-top .psalm-cell {
+                font-size: 0.6rem;
+                border-radius: 7px;
+            }
+        }
+        @media (orientation: landscape) and (max-width: 1024px) and (pointer: coarse) {
+            .main-container {
+                scroll-snap-type: y mandatory;
+                gap: 0;
+                padding-top: calc(10px + env(safe-area-inset-top));
+                padding-bottom: calc(10px + env(safe-area-inset-bottom));
+                overflow-y: auto;
+            }
+            .panel-group {
+                height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
+                height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
+                min-height: 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                align-content: stretch;
+                scroll-snap-align: start;
+                margin-bottom: 0;
+            }
+            .panel-group .panel-card,
+            .panel-group .panel4 {
+                height: 100%;
+            }
+            .panel-group .matrix-scroll,
+            .panel-group .scripture-scroll {
+                max-height: none;
+                height: calc(100% - 40px);
+            }
+            .panel-group .panel-card.flex.flex-col,
+            .panel-group .panel4.flex.flex-col {
+                min-height: 0;
+            }
+            .panel-group-top {
+                grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+            }
+            .panel-group-top .psalm-grid-15 {
+                grid-template-columns: repeat(15, minmax(0, 1fr));
+                gap: 3px;
+            }
+            .panel-group-top .psalm-cell {
+                font-size: 0.56rem;
+                border-radius: 50%;
+            }
+            .panel-group-top .matrix-scroll {
+                overflow-y: auto;
+                max-height: none;
+                height: calc(100% - 44px);
+                padding-right: 0;
+            }
+            .panel-group-top #legend.legend-grid-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px;
+                max-height: none;
+                overflow-y: auto;
+            }
+            .panel-group-top #legend.legend-grid-2 .legend-item {
+                min-height: 34px;
+                margin: 0;
+            }
+            .panel-group-bottom > :first-child {
+                order: 2;
+            }
+            .panel-group-bottom > :last-child {
+                order: 1;
+            }
+            #scriptureText {
+                padding-bottom: 55vh;
+            }
+        }
+        .copy-toast { transition: opacity 0.2s ease; }
+        .struct-tag {
+            display: inline;
+            border: none;
+            border-radius: 9999px;
+            padding: 0.06rem 0.45rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            margin-right: 0.18rem;
+            margin-bottom: 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            line-height: 1.65;
+            cursor: pointer;
+        }
+        .structured-block { margin-bottom: 1.25rem; border-left-width: 4px; border-radius: 0.75rem; padding: 0.75rem 1rem; transition: all 0.1s; }
+        .block-label {
+            display: inline-block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            padding: 0.06rem 0.45rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.65;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .info-row { margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem; }
+        .info-label { font-size: 1rem; font-weight: 700; color: #64748b; margin-bottom: 0.25rem; }
+        .info-value { font-size: 1rem; color: #1e293b; line-height: 1.5; }
+        .section-title { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+        .struct-tag.active { box-shadow: 0 0 0 2px rgba(30,41,59,0.55); }
+        .panel-jump-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 9999px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .panel4-actions { display: flex; align-items: center; gap: 3px; justify-content: flex-end; flex-wrap: nowrap; }
+        .copy-btn {
+            white-space: nowrap;
+            flex-shrink: 0;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            font-size: 12.5px;
+            padding: 5px 7.5px;
+            line-height: 1.1;
+        }
+        .copy-btn.speaking-once {
+            background: #dbeafe !important;
+            border-color: #93c5fd !important;
+        }
+        .copy-btn.speaking-loop {
+            background: #dcfce7 !important;
+            border-color: #86efac !important;
+        }
+        .speak-icon {
+            font-size: 15px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tri-yellow { color: #22c55e; }
+        .tri-red { color: #ef4444; }
+        .square-black { color: #111827; font-size: 13.75px; }
+        .arrow-btn {
+            min-width: 25px;
+            height: 25px;
+            padding: 0;
+            line-height: 1;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            font-size: 12.5px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow-rate { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+        .arrow-pitch { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        #prevPsalmBtn, #nextPsalmBtn, #prevSectionBtn, #nextSectionBtn {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+        .speech-setting-hint {
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(-2px);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .speech-setting-hint.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media (max-width: 1100px) {
+            .panel4-actions { gap: 2px; }
+            .copy-btn { font-size: 11.25px; padding: 3.75px 6.25px; }
+            .arrow-btn { min-width: 22.5px; height: 22.5px; font-size: 11.25px; border-radius: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="panel-group panel-group-top" id="panelGroupTop">
+        <!-- Panel 1 -->
+        <div class="panel-card p-3">
+            <div id="panel1Header" class="flex items-center justify-between border-b-2 border-slate-300 pb-1 mb-1.5">
+                <h3 class="font-extrabold text-gray-800 text-base">五大類 · 17類搜尋</h3>
+                <button id="jumpDownBtn1" type="button" class="panel-jump-btn" aria-label="切換到下方面板">▼</button>
+                <span class="text-[9px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500 font-mono">2026/08/29 17類</span>
+            </div>
+            <div id="legend" class="space-y-0.5 max-h-[380px] overflow-y-auto"></div>
+            <button id="resetBtn" class="w-full mt-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm hidden transition active:scale-95">🔄 重置篩選 · 全部150篇</button>
+        </div>
+
+        <!-- Panel 2 -->
+        <div class="panel-card p-3 flex flex-col">
+            <div id="panel2Header" class="flex justify-between items-center mb-1.5 pb-1 border-b-2 border-slate-300">
+                <div><h3 class="font-extrabold text-gray-800 text-base">詩篇全景</h3></div>
+                <span id="filterTypeDisplay" class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full hidden"></span>
+                <div class="text-[10px] text-gray-400">亮起的圓點可點選</div>
+            </div>
+            <div class="matrix-scroll"><div id="psalmGrid" class="psalm-grid-15"></div></div>
+        </div>
+    </div>
+
+    <div class="panel-group panel-group-bottom" id="panelGroupBottom">
+        <!-- Panel 3 -->
+        <div class="panel-card flex flex-col">
+            <div id="panel3Header" class="bg-gradient-to-r from-gray-50 to-white px-3 py-2 border-b-2 border-slate-300 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-gray-700 text-base tracking-wide">詩篇分析</h3>
+                    <button id="sequentialPlayBtn" type="button" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-xs font-semibold rounded-lg px-2 py-1 transition active:scale-95" aria-label="按篩選結果順序朗讀">▶ 順序</button>
+                </div>
+                <button id="jumpUpBtn3" type="button" class="panel-jump-btn" aria-label="切換到上方面板">▲</button>
+                <div class="flex items-center gap-1">
+                    <button id="prevPsalmBtn" type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2 py-1 transition active:scale-95">< 上一篇</button>
+                    <button id="nextPsalmBtn" type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2 py-1 transition active:scale-95">下一篇 ></button>
+                </div>
+            </div>
+
+            <div id="emptyState" class="flex-1 flex flex-col items-center justify-center p-3 text-center min-h-[90px]">
+                <p class="text-gray-400 text-sm font-medium">✨ 選擇詩篇篇章</p><p class="text-gray-300 text-xs mt-1">點擊方格查看詳情</p>
+            </div>
+            <div id="contentState" class="hidden flex-col flex-1">
+                <div id="topAccent" class="h-1.5 w-full transition-colors"></div>
+                <div class="p-4 space-y-3 overflow-y-auto max-h-[360px]">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 id="pTitleDisplay" class="text-xl font-black text-slate-800 tracking-tight"></h2>
+                        <p id="pTypeLabel" class="text-base font-bold whitespace-nowrap"></p>
+                    </div>
+                    <div>
+                        <div class="info-label">17類標籤（亮起＝本篇所屬，點選可搜尋）</div>
+                        <div id="tagDots"></div>
+                        <div id="tagPills" class="mt-2 flex flex-wrap gap-1.5"></div>
+                    </div>
+
+                    <!-- 詩篇結構分析 -->
+                    <div>
+                        <div class="flex items-center justify-between gap-2">
+                            <h4 class="section-title text-green-700">詩篇結構分析</h4>
+                            <div class="flex items-center gap-1">
+                                <button id="prevSectionBtn" type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2 py-1 transition active:scale-95">&lt; 上一段</button>
+                                <button id="nextSectionBtn" type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2 py-1 transition active:scale-95">下一段 &gt;</button>
+                            </div>
+                        </div>
+                        <div id="structureTagsContainer" class="mt-2 text-sm leading-relaxed"></div>
+                    </div>
+                    
+                    <!-- 🆕 合併：作者＋作者情緒（來自 JSON） -->
+                    <div class="info-row">
+                        <div class="info-label">作者和他的情緒</div>
+                        <div id="pAuthor" class="info-value text-gray-600"></div>
+                    </div>
+                    
+                    <!-- 🆕 新增：寫作背景（來自 JSON） -->
+                    <div class="info-row">
+                        <div class="info-label">寫作背景</div>
+                        <div id="pBackground" class="info-value text-gray-600"></div>
+                    </div>
+                    
+                    <!-- 原有的核心主題 -->
+                    <div>
+                        <h4 class="section-title text-amber-700">核心主題</h4>
+                        <p id="pTheme" class="text-sm font-semibold mt-1 leading-relaxed"></p>
+                    </div>
+                    
+                    <!-- 原有的內容概要 -->
+                    <div>
+                        <h4 class="section-title text-slate-500">內容概要</h4>
+                        <p id="pContent" class="text-base text-slate-600 leading-relaxed mt-1"></p>
+                    </div>
+                    
+                    <!-- 🆕 新增：適合的處境／情緒（來自 JSON） -->
+                    <div class="info-row">
+                        <div class="info-label">適合的處境／情緒</div>
+                        <div id="pSituation" class="info-value text-gray-600"></div>
+                    </div>
+                    
+                    <!-- 經典金句 -->
+                    <div>
+                        <h4 class="section-title text-amber-600">經典金句</h4>
+                        <div class="bg-amber-50/40 rounded-xl p-3 border-l-3 border-amber-300">
+                            <p id="pGolden" class="text-slate-800 font-bold italic leading-relaxed text-sm"></p>
+                            <p id="pRef" class="text-right text-[9px] font-bold text-amber-700 mt-2"></p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 4 -->
+        <div class="panel4 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden flex flex-col">
+        <div id="panel4Header" class="bg-gray-50/80 px-3 py-2 border-b-2 border-slate-300 flex items-center gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2"><span class="text-base font-bold text-gray-700">經文</span></div>
+            <span id="speechSettingHint" class="speech-setting-hint"></span>
+            <div class="panel4-actions ml-auto">
+                <button id="rateDownBtn" class="copy-btn arrow-btn arrow-rate shadow-sm transition-all active:scale-95" aria-label="降低朗讀速度">▼</button>
+                <button id="rateUpBtn" class="copy-btn arrow-btn arrow-rate shadow-sm transition-all active:scale-95" aria-label="提高朗讀速度">▲</button>
+                <button id="pitchDownBtn" class="copy-btn arrow-btn arrow-pitch shadow-sm transition-all active:scale-95" aria-label="降低朗讀音調">▼</button>
+                <button id="pitchUpBtn" class="copy-btn arrow-btn arrow-pitch shadow-sm transition-all active:scale-95" aria-label="提高朗讀音調">▲</button>
+                <button id="copySegmentBtn" aria-label="朗讀段落" class="copy-btn bg-white/80 hover:bg-white shadow-sm transition-all rounded-lg px-2 py-1 text-xs font-medium text-gray-600 flex items-center gap-1 active:scale-95"><span class="speak-icon tri-yellow">▶</span></button>
+                <button id="copyScriptureBtn" aria-label="朗讀全篇" class="copy-btn bg-white/80 hover:bg-white shadow-sm transition-all rounded-lg px-2 py-1 text-xs font-medium text-gray-600 flex items-center gap-1 active:scale-95"><span class="speak-icon tri-red">▶</span></button>
+                <button id="stopSpeakBtn" aria-label="停止朗讀" class="copy-btn bg-white/80 hover:bg-white shadow-sm transition-all rounded-lg px-2 py-1 text-xs font-medium text-gray-600 flex items-center gap-1 active:scale-95"><span class="speak-icon square-black">■</span></button>
+            </div>
+        </div>
+        <div id="scripturePanel" class="flex-1 p-4 scripture-scroll">
+            <div id="scriptureEmptyState" class="text-center text-gray-400 flex flex-col items-center justify-center h-full min-h-[80px]"><p class="text-sm">點擊左側詩篇，顯示完整經文</p></div>
+            <div id="scriptureContent" class="hidden"><h3 id="scriptureTitle" class="text-lg font-bold text-slate-700 mb-3 pb-2 border-b border-gray-200"></h3><div id="scriptureText" class="verse-text text-slate-700 text-base leading-relaxed"></div></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="./psalm-data v2.js"></script>
+<script>
+// ============================================================================
+// 📍 位置 1：經文資料（保持原有 FULL_TEXTS，此處省略以節省空間，請保留你的完整資料）
+// ============================================================================
+// 📍 位置 1：請將您的 psalm-text.json 完整內容貼到下方的 FULL_TEXTS 中
+// ============================================================================
+let FULL_TEXTS = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.FULL_TEXTS) || {};
+// ============================================================================
+
+// ============================================================================
+// 📍 位置 2：請將您的 OFFLINE_DB 完整內容貼到下方
+// ============================================================================
+
+        let OFFLINE_DB = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.OFFLINE_DB) || {};
+ // ============================================================================
+
+// ============================================================================
+// 📍 位置 3：請將您的詩篇結構分析 JSON 貼到下方
+// ============================================================================
+// ==================== 詩篇結構分析資料 ====================
+let PSALM_STRUCTURE = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.PSALM_STRUCTURE) || {};
+// ==================== 結構分析資料結束 ====================// ============================================================================
+let PSALMS_JSON_DATA = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.PSALMS_JSON_DATA) || {};
+
+// ============================================================================
+// 全域變數與函數
+// ============================================================================
+let psalmMap = {};
+let currentPsalm = null;
+let selectedStructureIndex = 0;
+let speechRepeatEnabled = false;
+let speechRate = 0.95;
+let speechPitch = 1.0;
+let activeSpeechBtn = null;
+let speechSessionId = 0;
+let speechState = {
+    isSpeaking: false,       // 是否正在朗讀
+    mode: null,              // 'whole' | 'segment' | null
+    isRepeat: false,         // 是否循環
+    wasFinished: false,      // 朗讀是否已完成
+    wasStopped: false,       // 朗讀是否已被停止
+    savedRate: 0.95,         // 保存的速度
+    savedPitch: 1.0          // 保存的音調
+};
+
+// 順序播放相關變數
+let sequentialPlayActive = false;  // 是否正在順序播放
+let currentFilterTypeId = null;    // 當前篩選的 17類 id（null 表示無篩選）
+let currentFilterMajor = null;     // 當前篩選的五大類（與 typeId 互斥）
+
+
+let CLASSIFICATION = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.CLASSIFICATION) || { majors: [], types: [], psalms: {} };
+const MAJOR_COLORS = {
+    '讚美': '#F5D76E',
+    '哀禱': '#85C1E9',
+    '感恩': '#82E0AA',
+    '王國': '#F1948A',
+    '訓誨': '#BB8FCE'
+};
+const categories = {};
+function rebuildCategoriesFromClassification() {
+    CLASSIFICATION = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.CLASSIFICATION) || CLASSIFICATION;
+    Object.keys(categories).forEach(k => delete categories[k]);
+    (CLASSIFICATION.types || []).forEach(t => {
+        categories[t.id] = { name: t.name, hex: t.hex, major: t.major, kind: t.kind, count: 0 };
+    });
+}
+rebuildCategoriesFromClassification();
+
+const STRUCT_TYPE_COLOR = {
+    "求": "#3b82f6", "哀": "#6b7280", "讚": "#f59e0b", "感": "#10b981", "信": "#8b5cf6",
+    "君": "#ec4899", "智": "#8b5cf6", "錫": "#14b8a6", "歷": "#f97316", "詛": "#ef4444",
+    "勸": "#06b6d4", "默": "#a855f7"
+};
+const DEFAULT_COLOR = "#94a3b8";
+const STRUCT_SEQUENCE_COLORS = ["#3b82f6", "#f59e0b", "#10b981", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#ef4444", "#6366f1", "#22c55e"];
+
+function normalizeTypeLabel(typeStr) {
+    if (!typeStr) return "";
+    return String(typeStr).replace(/\s*[\(（][^()（）]*[\)）]\s*/g, '').trim();
+}
+
+function isMobileLandscapeView() {
+    return window.matchMedia('(orientation: landscape)').matches &&
+        window.matchMedia('(max-width: 1024px)').matches &&
+        window.matchMedia('(pointer: coarse)').matches;
+}
+
+function isMobileView() {
+    return window.matchMedia('(max-width: 1024px)').matches &&
+        window.matchMedia('(pointer: coarse)').matches;
+}
+
+function isStackedPanelView() {
+    return window.matchMedia('(max-width: 767px)').matches;
+}
+
+function isPanelPairSwitchMode() {
+    return isMobileView() || isStackedPanelView();
+}
+
+function syncLandscapeLegendLayout() {
+    const legend = document.getElementById('legend');
+    if (!legend) return;
+    if (isMobileLandscapeView()) legend.classList.add('legend-grid-2');
+    else legend.classList.remove('legend-grid-2');
+}
+
+function switchPanelGroup(targetGroupId) {
+    if (!isPanelPairSwitchMode()) return;
+    const target = document.getElementById(targetGroupId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function syncPanelSwitchButtons() {
+    const shouldShow = isPanelPairSwitchMode();
+    const buttons = [
+        document.getElementById('jumpDownBtn1'),
+        document.getElementById('jumpDownBtn2'),
+        document.getElementById('jumpUpBtn3')
+    ];
+    buttons.forEach(btn => {
+        if (!btn) return;
+        btn.style.display = shouldShow ? 'inline-flex' : 'none';
+        btn.disabled = !shouldShow;
+    });
+}
+
+function bindPanelSwitchButtons() {
+    const down1 = document.getElementById('jumpDownBtn1');
+    const down2 = document.getElementById('jumpDownBtn2');
+    const up3 = document.getElementById('jumpUpBtn3');
+    if (down1) down1.addEventListener('click', () => switchPanelGroup('panelGroupBottom'));
+    if (down2) down2.addEventListener('click', () => switchPanelGroup('panelGroupBottom'));
+    if (up3) up3.addEventListener('click', () => switchPanelGroup('panelGroupTop'));
+}
+
+// 輔助函數：安全取得 JSON 資料
+function getJsonData(psalmNum, field) {
+    if (PSALMS_JSON_DATA && PSALMS_JSON_DATA[psalmNum] && PSALMS_JSON_DATA[psalmNum][field]) {
+        return PSALMS_JSON_DATA[psalmNum][field];
+    }
+    return "資料待補充";
+}
+
+function parseStructureTags(structureStr) {
+    if (!structureStr || typeof structureStr !== 'string') return [];
+    const parts = structureStr.split(/[，,]/);
+    const result = [];
+    for (let part of parts) {
+        part = part.trim();
+        if (!part) continue;
+        const match = part.match(/^(.*?)[（(]\s*(\d+)\s*(?:-\s*(\d+))?\s*[）)]$/);
+        if (match) {
+            const label = match[1].trim();
+            const start = parseInt(match[2], 10);
+            const end = parseInt(match[3] || match[2], 10);
+            if (label && Number.isFinite(start) && Number.isFinite(end) && end >= start) {
+                result.push({
+                    label,
+                    start,
+                    end,
+                    count: end - start + 1,
+                    type: label.charAt(0)
+                });
+            }
+        }
+    }
+    return result;
+}
+
+function getStructureColor(labelOrType) {
+    if (!labelOrType) return DEFAULT_COLOR;
+    const key = String(labelOrType).trim();
+    if (STRUCT_TYPE_COLOR[key]) return STRUCT_TYPE_COLOR[key];
+    const firstChar = key.charAt(0);
+    if (STRUCT_TYPE_COLOR[firstChar]) return STRUCT_TYPE_COLOR[firstChar];
+    return DEFAULT_COLOR;
+}
+
+function getStructureColorByIndex(index, labelOrType) {
+    if (Number.isInteger(index) && index >= 0) {
+        return STRUCT_SEQUENCE_COLORS[index % STRUCT_SEQUENCE_COLORS.length];
+    }
+    return getStructureColor(labelOrType);
+}
+
+function extractVerses(text) {
+    if (!text) return [];
+    const lines = text.split(/\r?\n/);
+    const verses = [];
+    for (let line of lines) {
+        line = line.trim();
+        if (line === "") continue;
+        const match = line.match(/^(\d+)[\.\s、：]*(.+)$/);
+        if (match) {
+            verses.push({ num: match[1], text: match[2] });
+        } else if (verses.length === 0) {
+            verses.push({ num: "1", text: line });
+        } else {
+            verses[verses.length-1].text += " " + line;
+        }
+    }
+    return verses;
+}
+
+function groupVersesByStructure(verses, structureTags) {
+    if (!structureTags.length || !verses.length) return [];
+    const groups = [];
+    const toNum = (v) => parseInt(v.num, 10);
+    for (let tag of structureTags) {
+        const groupVerses = verses.filter(v => {
+            const n = toNum(v);
+            return Number.isFinite(n) && n >= tag.start && n <= tag.end;
+        });
+        if (groupVerses.length) {
+            groups.push({
+                label: tag.label,
+                type: tag.type,
+                start: tag.start,
+                end: tag.end,
+                verses: groupVerses
+            });
+        }
+    }
+    return groups;
+}
+
+function renderStructuredScripture(psalmNum, fullText) {
+    const container = document.getElementById('scriptureText');
+    if (!container) return;
+    const structureRaw = PSALM_STRUCTURE[psalmNum];
+    const tags = parseStructureTags(structureRaw);
+    const verses = extractVerses(fullText);
+    if (!verses.length || tags.length === 0) {
+        container.innerHTML = formatScriptureWithVerseNumbers(fullText);
+        return;
+    }
+    const groups = groupVersesByStructure(verses, tags);
+    if (!groups.length) {
+        container.innerHTML = formatScriptureWithVerseNumbers(fullText);
+        return;
+    }
+    let html = '';
+    for (let idx = 0; idx < groups.length; idx++) {
+        const grp = groups[idx];
+        const color = getStructureColorByIndex(idx, grp.label || grp.type);
+        const lightBg = color + '20';
+        const rangeText = grp.start === grp.end ? `${grp.start}` : `${grp.start}-${grp.end}`;
+        html += `<div class="structured-block" data-structure-index="${idx}" style="border-left-color: ${color}; background-color: ${lightBg}; border-left-width: 4px; border-radius: 0.5rem; padding: 0.6rem 1rem; margin-bottom: 1rem;">`;
+        html += `<div class="block-label" style="background-color: ${color}; color: white; display: inline-block;">${grp.label}（${rangeText}）</div>`;
+        html += `<div class="mt-2"><p class="verse-paragraph">`;
+        for (let v of grp.verses) {
+            html += `<span class="verse-line"><span class="verse-number">${v.num}</span>${v.text}</span> `;
+        }
+        html += `</p></div></div>`;
+    }
+    container.innerHTML = html;
+    if (groups.length) selectedStructureIndex = 0;
+}
+
+function formatScriptureWithVerseNumbers(text) {
+    if (!text) return '';
+    const lines = text.split('\n');
+    const result = [];
+    let currentPara = [];
+    for (let line of lines) {
+        line = line.trim();
+        if (line === '') {
+            if (currentPara.length) { result.push(currentPara.join(' ')); currentPara = []; }
+            continue;
+        }
+        const match = line.match(/^(\d+)[\.\s、：]*(.+)$/);
+        if (match) {
+            currentPara.push(`<span class="verse-line"><span class="verse-number">${match[1]}</span>${match[2]}</span>`);
+        } else {
+            currentPara.push(`<span class="verse-line"> ${line}</span>`);
+        }
+    }
+    if (currentPara.length) result.push(currentPara.join(' '));
+    if (result.length === 0) return text.replace(/\n/g, ' ');
+    return result.map(p => `<p class="verse-paragraph">${p}</p>`).join('');
+}
+
+function displayScripture(psalmNum) {
+    const scriptureContentDiv = document.getElementById('scriptureContent');
+    const emptyStateDiv = document.getElementById('scriptureEmptyState');
+    const scriptureTitle = document.getElementById('scriptureTitle');
+    if (FULL_TEXTS[psalmNum] && FULL_TEXTS[psalmNum].text) {
+        emptyStateDiv.classList.add('hidden');
+        scriptureContentDiv.classList.remove('hidden');
+        scriptureTitle.textContent = FULL_TEXTS[psalmNum].title;
+        const fullText = FULL_TEXTS[psalmNum].text;
+        const hasStructure = PSALM_STRUCTURE[psalmNum] && parseStructureTags(PSALM_STRUCTURE[psalmNum]).length > 0;
+        if (hasStructure) renderStructuredScripture(psalmNum, fullText);
+        else document.getElementById('scriptureText').innerHTML = formatScriptureWithVerseNumbers(fullText);
+    } else {
+        emptyStateDiv.classList.remove('hidden');
+        scriptureContentDiv.classList.add('hidden');
+    }
+}
+
+function renderStructureTags(psalmNum) {
+    const container = document.getElementById('structureTagsContainer');
+    if (!container) return;
+    const raw = PSALM_STRUCTURE[psalmNum];
+    if (!raw) { container.innerHTML = '<span class="text-gray-400 text-xs">暫無結構分析資料</span>'; return; }
+    const tags = parseStructureTags(raw);
+    if (!tags.length) { container.innerHTML = '<span class="text-gray-400 text-xs">結構格式無法解析</span>'; return; }
+    let html = '';
+    for (let idx = 0; idx < tags.length; idx++) {
+        const t = tags[idx];
+        const color = getStructureColorByIndex(idx, t.label || t.type);
+        const rangeText = t.start === t.end ? `${t.start}` : `${t.start}-${t.end}`;
+        html += `<button type="button" class="struct-tag js-struct-tag" data-structure-index="${idx}" style="background-color: ${color};">${t.label}（${rangeText}）</button>`;
+    }
+    container.innerHTML = html;
+    selectedStructureIndex = 0;
+    setActiveStructureTag(selectedStructureIndex);
+    const tagButtons = container.querySelectorAll('.js-struct-tag');
+    tagButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 如果正在朗讀，先保存狀態再停止
+            const wasSpeaking = speechState.isSpeaking;
+            const savedState = { ...speechState };
+            if (wasSpeaking) {
+                // 順序播放中：不停止朗讀，只切換段落繼續朗讀
+                if (!sequentialPlayActive) {
+                    stopSpeaking();
+                }
+            }
+            const idx = Number(btn.dataset.structureIndex);
+            selectedStructureIndex = idx;
+            setActiveStructureTag(idx);
+            scrollStructureBlockToTop(idx);
+            // 如果之前正在朗讀，切換後自動恢復朗讀
+            if (wasSpeaking) {
+                speechState = { ...savedState };
+                speechState.isSpeaking = false;
+                resumeSpeakingIfNeeded();
+            }
+        });
+    });
+
+}
+
+function setActiveStructureTag(structureIndex) {
+    const tags = document.querySelectorAll('.js-struct-tag');
+    tags.forEach(tag => tag.classList.remove('active'));
+    const activeTag = document.querySelector(`.js-struct-tag[data-structure-index="${structureIndex}"]`);
+    if (activeTag) activeTag.classList.add('active');
+}
+
+function shouldAutoScrollMatrix() {
+    return isMobileView();
+}
+
+function getStructureCount() {
+    return document.querySelectorAll('.js-struct-tag').length;
+}
+
+function selectStructureByIndex(idx) {
+    const total = getStructureCount();
+    if (!total) return;
+    const normalized = ((idx % total) + total) % total;
+    selectedStructureIndex = normalized;
+    setActiveStructureTag(normalized);
+    scrollStructureBlockToTop(normalized);
+}
+
+function selectRelativeStructure(delta) {
+    const total = getStructureCount();
+    if (!total) return;
+    const base = Number.isInteger(selectedStructureIndex) ? selectedStructureIndex : 0;
+    // 如果正在朗讀，先保存狀態再停止
+    const wasSpeaking = speechState.isSpeaking;
+    const savedState = { ...speechState };
+    if (wasSpeaking) {
+        // 順序播放中：不停止朗讀，只切換段落繼續朗讀
+        if (!sequentialPlayActive) {
+            stopSpeaking();
+        }
+    }
+    selectStructureByIndex(base + delta);
+    // 如果之前正在朗讀，切換後自動恢復朗讀
+    if (wasSpeaking) {
+        speechState = { ...savedState };
+        speechState.isSpeaking = false;
+        resumeSpeakingIfNeeded();
+    }
+}
+
+
+function scrollStructureBlockToTop(structureIndex) {
+    if (!Number.isInteger(structureIndex) || structureIndex < 0) return;
+    const panel = document.getElementById('scripturePanel');
+    const target = document.querySelector(`#scriptureText .structured-block[data-structure-index="${structureIndex}"]`);
+    if (!panel || !target) return;
+    const panelRect = panel.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const delta = targetRect.top - panelRect.top;
+    const topOffset = Math.max(0, panel.scrollTop + delta);
+    panel.scrollTo({ top: topOffset, behavior: 'smooth' });
+}
+
+function scrollPanel3HeaderToTop() {
+    const panel3Header = document.getElementById('panel3Header');
+    if (!panel3Header) return;
+    try {
+        panel3Header.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+    } catch {
+        panel3Header.scrollIntoView(true);
+    }
+}
+
+function getPsalmClass(n) {
+    const key = String(n);
+    const fromClass = CLASSIFICATION.psalms && (CLASSIFICATION.psalms[key] || CLASSIFICATION.psalms[n]);
+    const fromDb = OFFLINE_DB[key] || OFFLINE_DB[n] || {};
+    const major = (fromClass && fromClass.major) || fromDb.major || '哀禱';
+    const primary = (fromClass && fromClass.primary) || fromDb.primary || fromDb.type || '個人哀歌';
+    const tagIds = (fromClass && fromClass.tagIds)
+        || fromDb.tagIds
+        || (fromDb.typeId ? [fromDb.typeId] : []);
+    const tags = (fromClass && fromClass.tags) || fromDb.tags || [primary];
+    return { major, primary, tagIds: tagIds.map(Number), tags };
+}
+
+function psalmMatchesFilter(n, typeId = currentFilterTypeId, major = currentFilterMajor) {
+    const info = getPsalmClass(n);
+    if (typeId != null) return info.tagIds.includes(Number(typeId));
+    if (major) return info.major === major;
+    return true;
+}
+
+function generatePsalmMap() {
+    psalmMap = {};
+    for (let i = 1; i <= 150; i++) {
+        const info = getPsalmClass(i);
+        psalmMap[i] = info.tagIds[0] || 4;
+    }
+}
+
+function calculateCounts() {
+    Object.keys(categories).forEach(k => categories[k].count = 0);
+    for (let i = 1; i <= 150; i++) {
+        getPsalmClass(i).tagIds.forEach(tid => {
+            if (categories[tid]) categories[tid].count++;
+        });
+    }
+}
+
+function countMajor(majorName) {
+    let c = 0;
+    for (let i = 1; i <= 150; i++) {
+        if (getPsalmClass(i).major === majorName) c++;
+    }
+    return c;
+}
+
+// 🆕 修改後的 showDetail 函數：同時顯示 JSON 資料
+function showDetail(n, el) {
+    // 如果正在朗讀，先保存狀態再停止
+    const wasSpeaking = speechState.isSpeaking;
+    const savedState = { ...speechState };
+    if (wasSpeaking) {
+        // 順序播放中：只取消當前朗讀（cancel speech），不停止順序播放
+        // 由 onSequentialPsalmEnd() 的 setTimeout 重新開始朗讀新詩篇
+        if (sequentialPlayActive) {
+            cancelCurrentSpeech();
+        } else {
+            stopSpeaking();
+        }
+    }
+
+    currentPsalm = n;
+
+    document.querySelectorAll('.psalm-cell').forEach(c => c.classList.remove('active'));
+    if (el) el.classList.add('active');
+    
+    // 原有 OFFLINE_DB 資料
+    const data = OFFLINE_DB[n] || { 
+        type: "哀歌", 
+        theme: "主題待補充", 
+        content: "請在 OFFLINE_DB 加入完整資料", 
+        golden: "耶和華是我的力量", 
+        ref: `詩篇 ${n}:1` 
+    };
+    
+    const cls = getPsalmClass(n);
+    const majorHex = MAJOR_COLORS[cls.major] || '#94a3b8';
+    
+    // 顯示/隱藏面板
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('contentState').classList.remove('hidden');
+    document.getElementById('topAccent').style.backgroundColor = majorHex;
+    document.getElementById('pTitleDisplay').textContent = `第 ${n} 篇`;
+    
+    // 五大類 + 主分類（舊 type 僅作補充）
+    const oldType = data.type ? `｜舊標籤：${data.type}` : '';
+    document.getElementById('pTypeLabel').textContent = `(五大類：${cls.major} · ${cls.primary}${oldType})`;
+    document.getElementById('pTypeLabel').style.color = majorHex;
+    renderPsalmTagDots(n);
+    document.getElementById('pTheme').textContent = data.theme;
+    document.getElementById('pContent').textContent = data.content;
+    document.getElementById('pGolden').textContent = `「${data.golden}」`;
+    document.getElementById('pRef').textContent = data.ref;
+    
+    // 🆕 新增欄位：從 JSON 取得資料
+    const authorText = getJsonData(n, '作者');
+    const emotionText = getJsonData(n, '作者情緒');
+    document.getElementById('pAuthor').textContent = `${authorText}｜${emotionText}`;
+    document.getElementById('pBackground').textContent = getJsonData(n, '寫作背景');
+    document.getElementById('pSituation').textContent = getJsonData(n, '適合的處境／情緒');
+    // 結構標籤與經文
+    renderStructureTags(n);
+    displayScripture(n);
+    selectStructureByIndex(0);
+    if (isMobileLandscapeView()) {
+        const bottomGroup = document.getElementById('panelGroupBottom');
+        if (bottomGroup) bottomGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (isMobileView()) {
+        scrollPanel3HeaderToTop();
+    }
+    // 如果之前正在朗讀，切換後自動恢復朗讀
+    if (wasSpeaking) {
+        // 恢復之前保存的狀態（stopSpeaking 會重置 speechState，所以用 savedState）
+        speechState = { ...savedState };
+        speechState.isSpeaking = false;
+        resumeSpeakingIfNeeded();
+    }
+}
+
+function clearLegendActive() {
+    document.querySelectorAll('.legend-item, .legend-group-title').forEach(item => item.classList.remove('legend-active'));
+}
+
+function applyGridFilter() {
+    document.querySelectorAll('.psalm-cell').forEach(cell => {
+        const num = parseInt(cell.textContent, 10);
+        const match = psalmMatchesFilter(num);
+        cell.classList.toggle('dimmed', !match);
+        cell.classList.toggle('lit', match && (currentFilterTypeId != null || currentFilterMajor));
+    });
+}
+
+function filter(typeId) {
+    const tid = Number(typeId);
+    currentFilterTypeId = tid;
+    currentFilterMajor = null;
+    applyGridFilter();
+    document.getElementById('resetBtn').classList.remove('hidden');
+    
+    clearLegendActive();
+    const activeItem = document.querySelector(`.legend-item[data-type-id="${tid}"]`);
+    if (activeItem) activeItem.classList.add('legend-active');
+    
+    const display = document.getElementById('filterTypeDisplay');
+    const cat = categories[tid];
+    if (cat) {
+        display.textContent = `${cat.major} · ${cat.name}`;
+        display.classList.remove('hidden');
+    }
+}
+
+function filterMajor(majorName) {
+    currentFilterTypeId = null;
+    currentFilterMajor = majorName;
+    applyGridFilter();
+    document.getElementById('resetBtn').classList.remove('hidden');
+    clearLegendActive();
+    const activeItem = document.querySelector(`.legend-group-title[data-major="${majorName}"]`);
+    if (activeItem) activeItem.classList.add('legend-active');
+    const display = document.getElementById('filterTypeDisplay');
+    display.textContent = `五大類：${majorName}`;
+    display.classList.remove('hidden');
+}
+
+function renderPsalmTagDots(n) {
+    const dots = document.getElementById('tagDots');
+    const pills = document.getElementById('tagPills');
+    if (!dots || !pills) return;
+    const cls = getPsalmClass(n);
+    dots.innerHTML = '';
+    pills.innerHTML = '';
+    (CLASSIFICATION.types || []).forEach(t => {
+        const lit = cls.tagIds.includes(t.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tag-dot' + (lit ? ' lit' : '');
+        btn.style.background = t.hex;
+        btn.title = `${t.major} · ${t.name}`;
+        btn.setAttribute('aria-label', t.name + (lit ? '（本篇所屬）' : ''));
+        btn.onclick = () => {
+            if (!sequentialPlayActive) stopSpeaking();
+            filter(t.id);
+        };
+        dots.appendChild(btn);
+        if (lit) {
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'tag-pill';
+            pill.style.background = t.hex + '55';
+            pill.innerHTML = `<span class="type-dot" style="width:8px;height:8px;border-radius:50%;background:${t.hex};display:inline-block"></span>${t.name}`;
+            pill.onclick = () => {
+                if (!sequentialPlayActive) stopSpeaking();
+                filter(t.id);
+            };
+            pills.appendChild(pill);
+        }
+    });
+}
+
+
+
+function moveToPsalm(newPsalm) {
+    if (newPsalm < 1 || newPsalm > 150) return;
+    const isDimmedMode = document.querySelectorAll('.psalm-cell.dimmed').length > 0;
+    if (isDimmedMode && !psalmMatchesFilter(newPsalm)) return;
+    const cells = document.querySelectorAll('.psalm-cell');
+    let targetCell = null;
+    cells.forEach(cell => { if (parseInt(cell.textContent) === newPsalm) targetCell = cell; });
+    if (targetCell) {
+        targetCell.click();
+        targetCell.classList.add('active');
+        if (shouldAutoScrollMatrix()) {
+            try {
+                targetCell.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+            } catch {
+                // Fallback for older iOS Safari that does not support smooth options object
+                targetCell.scrollIntoView(true);
+            }
+        }
+    }
+}
+
+function selectRelativePsalm(delta) {
+    if (!Number.isInteger(delta) || delta === 0) return;
+    const cells = Array.from(document.querySelectorAll('.psalm-cell'));
+    const visible = cells.filter(cell => !cell.classList.contains('dimmed'));
+    const scope = visible.length ? visible : cells;
+    if (!scope.length) return;
+    const numbers = scope.map(cell => parseInt(cell.textContent)).filter(Number.isFinite);
+    if (!numbers.length) return;
+    const base = currentPsalm && numbers.includes(currentPsalm) ? currentPsalm : numbers[0];
+    const currentIdx = numbers.indexOf(base);
+    const nextIdx = (currentIdx + delta + numbers.length) % numbers.length;
+    const next = numbers[nextIdx];
+    let targetCell = null;
+    cells.forEach(cell => { if (parseInt(cell.textContent) === next) targetCell = cell; });
+    if (!targetCell) return;
+    // 保存朗讀狀態（showDetail 會處理保存和恢復）
+    showDetail(next, targetCell);
+}
+
+function handleTab(e) {
+    if (e.key !== 'Tab') return;
+    e.preventDefault();
+    const cells = Array.from(document.querySelectorAll('.psalm-cell'));
+    let visible = cells.filter(cell => !cell.classList.contains('dimmed'));
+    if (!visible.length) return;
+    if (!currentPsalm) { moveToPsalm(parseInt(visible[0].textContent)); return; }
+    let idx = visible.findIndex(cell => parseInt(cell.textContent) === currentPsalm);
+    if (idx === -1) idx = 0;
+    let nextIdx = (idx + 1) % visible.length;
+    moveToPsalm(parseInt(visible[nextIdx].textContent));
+}
+
+function cleanVerseTextForSpeech(rawText) {
+    if (!rawText) return '';
+    const lines = String(rawText).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const cleaned = lines.map(line => line.replace(/^\d+[\.\s、：:]*/u, '').trim()).filter(Boolean);
+    return cleaned.join('。');
+}
+
+function getSelectedStructureSpeechText() {
+    const blocks = document.querySelectorAll('#scriptureText .structured-block');
+    if (!blocks.length) return '';
+    const idx = Number.isInteger(selectedStructureIndex) ? selectedStructureIndex : 0;
+    const target = blocks[idx] || blocks[0];
+    const verseNodes = target.querySelectorAll('.verse-line');
+    if (verseNodes.length) {
+        const lines = [];
+        verseNodes.forEach(node => {
+            const clone = node.cloneNode(true);
+            clone.querySelectorAll('.verse-number').forEach(num => num.remove());
+            const t = clone.textContent.trim();
+            if (t) lines.push(t);
+        });
+        return lines.join('。');
+    }
+    return cleanVerseTextForSpeech(target.textContent);
+}
+
+function getWholePsalmSpeechText() {
+    if (!currentPsalm) return '';
+    if (FULL_TEXTS[currentPsalm] && FULL_TEXTS[currentPsalm].text) {
+        return cleanVerseTextForSpeech(FULL_TEXTS[currentPsalm].text);
+    }
+    const scriptureEl = document.getElementById('scriptureText');
+    return cleanVerseTextForSpeech(scriptureEl ? scriptureEl.textContent : '');
+}
+
+function getStructuredSpeechChunks() {
+    const blocks = document.querySelectorAll('#scriptureText .structured-block');
+    if (!blocks.length) return [];
+    const chunks = [];
+    blocks.forEach((block, idx) => {
+        const verseNodes = block.querySelectorAll('.verse-line');
+        if (!verseNodes.length) {
+            const fallback = cleanVerseTextForSpeech(block.textContent);
+            if (fallback) chunks.push({ index: idx, text: fallback });
+            return;
+        }
+        const lines = [];
+        verseNodes.forEach(node => {
+            const clone = node.cloneNode(true);
+            clone.querySelectorAll('.verse-number').forEach(num => num.remove());
+            const t = clone.textContent.trim();
+            if (t) lines.push(t);
+        });
+        const text = lines.join('。');
+        if (text) chunks.push({ index: idx, text });
+    });
+    return chunks;
+}
+
+function isIOSDevice() {
+    const ua = navigator.userAgent || '';
+    return /iPad|iPhone|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function pickBestChineseVoice(voices) {
+    if (!voices || !voices.length) return null;
+    const list = voices.map(v => ({ v, sig: `${v.lang} ${v.name}` }));
+    const pick = (patterns) => {
+        for (const p of patterns) {
+            const hit = list.find(item => p.test(item.sig));
+            if (hit) return hit.v;
+        }
+        return null;
+    };
+    if (isIOSDevice()) {
+        const siri = pick([/siri.*zh-hk/i, /siri.*zh-tw/i, /siri.*zh-cn/i, /ting-ting/i, /sin-ji/i, /mei-jia/i]);
+        if (siri) return siri;
+    }
+    return pick([/yue/i, /cantonese/i, /zh-hk/i, /zh-tw/i, /zh-cn/i, /zh/i]);
+}
+
+function clearSpeakingButtonState() {
+    if (!activeSpeechBtn) return;
+    activeSpeechBtn.classList.remove('speaking-once', 'speaking-loop');
+    activeSpeechBtn = null;
+}
+
+function applySpeakingButtonState(btn, repeat) {
+    clearSpeakingButtonState();
+    if (!btn) return;
+    activeSpeechBtn = btn;
+    btn.classList.toggle('speaking-loop', !!repeat);
+    btn.classList.toggle('speaking-once', !repeat);
+}
+
+function speakCantonese(text, btn, successMsg, repeat = false) {
+    const content = (text || '').trim();
+    if (!content) return;
+    if (!('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') return;
+    applySpeakingButtonState(btn, repeat);
+    speechRepeatEnabled = repeat;
+    // 保存朗讀狀態
+    speechState.isSpeaking = true;
+    speechState.mode = btn && btn.id === 'copySegmentBtn' ? 'segment' : 'whole';
+    speechState.isRepeat = repeat;
+    speechState.wasFinished = false;
+    speechState.wasStopped = false;
+    speechState.savedRate = speechRate;
+    speechState.savedPitch = speechPitch;
+    const mySession = ++speechSessionId;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(content);
+    utter.lang = 'zh-HK';
+    utter.rate = speechRate;
+    utter.pitch = speechPitch;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = pickBestChineseVoice(voices);
+    if (preferred) utter.voice = preferred;
+    utter.onerror = () => {
+        speechRepeatEnabled = false;
+        clearSpeakingButtonState();
+        speechState.isSpeaking = false;
+        speechState.wasStopped = true;
+    };
+    utter.onend = () => {
+        if (mySession !== speechSessionId) return;
+        if (speechRepeatEnabled && repeat) {
+            setTimeout(() => speakCantonese(content, btn, successMsg, true), 200);
+            return;
+        }
+        clearSpeakingButtonState();
+        speechState.isSpeaking = false;
+        speechState.wasFinished = true;
+        // 順序播放中：朗讀完成後檢查是否需要跳到下一首詩篇
+        if (sequentialPlayActive) {
+            onSequentialPsalmEnd();
+        }
+    };
+
+    window.speechSynthesis.speak(utter);
+}
+
+function speakSequentialChunks(chunks, btn, repeatCycle = false) {
+    if (!chunks.length) return;
+    if (!('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') return;
+    applySpeakingButtonState(btn, repeatCycle);
+    speechRepeatEnabled = repeatCycle;
+    // 保存朗讀狀態
+    speechState.isSpeaking = true;
+    speechState.mode = 'whole';
+    speechState.isRepeat = repeatCycle;
+    speechState.wasFinished = false;
+    speechState.wasStopped = false;
+    speechState.savedRate = speechRate;
+    speechState.savedPitch = speechPitch;
+    const mySession = ++speechSessionId;
+    window.speechSynthesis.cancel();
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = pickBestChineseVoice(voices);
+
+    const speakAt = (idx) => {
+        if (mySession !== speechSessionId) return;
+        const item = chunks[idx];
+        if (!item) {
+            if (speechRepeatEnabled && repeatCycle) {
+                speakAt(0);
+            } else {
+                clearSpeakingButtonState();
+                speechState.isSpeaking = false;
+                speechState.wasFinished = true;
+                // 順序播放中：所有段落朗讀完成後跳到下一首詩篇
+                if (sequentialPlayActive) {
+                    onSequentialPsalmEnd();
+                }
+            }
+            return;
+        }
+
+        if (Number.isInteger(item.index)) scrollStructureBlockToTop(item.index);
+        const utter = new SpeechSynthesisUtterance(item.text);
+        utter.lang = 'zh-HK';
+        utter.rate = speechRate;
+        utter.pitch = speechPitch;
+        if (preferred) utter.voice = preferred;
+        utter.onerror = () => {
+            if (mySession !== speechSessionId) return;
+            speechRepeatEnabled = false;
+            clearSpeakingButtonState();
+            speechState.isSpeaking = false;
+            speechState.wasStopped = true;
+        };
+        utter.onend = () => {
+            if (mySession !== speechSessionId) return;
+            speakAt(idx + 1);
+        };
+        window.speechSynthesis.speak(utter);
+    };
+
+    speakAt(0);
+}
+
+function adjustSpeechSetting(type, delta, btn) {
+    if (type === 'rate') {
+        const next = Math.max(0.6, Math.min(1.4, speechRate + delta));
+        speechRate = Math.round(next * 100) / 100;
+        showSpeechSettingHint(`速度 ${speechRate.toFixed(2)}x`, '#b91c1c');
+        return;
+    }
+    if (type === 'pitch') {
+        const next = Math.max(0.7, Math.min(1.5, speechPitch + delta));
+        speechPitch = Math.round(next * 100) / 100;
+        showSpeechSettingHint(`音調 ${speechPitch.toFixed(2)}`, '#166534');
+    }
+}
+
+function showSpeechSettingHint(msg, color) {
+    const hint = document.getElementById('speechSettingHint');
+    if (!hint) return;
+    hint.textContent = msg;
+    hint.style.color = color || '#334155';
+    hint.classList.add('visible');
+    clearTimeout(showSpeechSettingHint._timer);
+    showSpeechSettingHint._timer = setTimeout(() => {
+        hint.classList.remove('visible');
+    }, 1200);
+}
+
+function readWholePsalm() {
+    const btn = document.getElementById('copyScriptureBtn');
+    if (!currentPsalm) { showCopyFeedback('⚠️ 尚未選擇詩篇', btn); return; }
+    const chunks = getStructuredSpeechChunks();
+    if (chunks.length) {
+        speakSequentialChunks(chunks, btn, false);
+        return;
+    }
+    const panel = document.getElementById('scripturePanel');
+    if (panel) panel.scrollTo({ top: 0, behavior: 'smooth' });
+    const content = getWholePsalmSpeechText();
+    speakCantonese(content, btn, '🔊 朗讀全篇中');
+}
+
+function readSelectedSegment() {
+    const btn = document.getElementById('copySegmentBtn');
+    if (!currentPsalm) { showCopyFeedback('⚠️ 尚未選擇詩篇', btn); return; }
+    if (Number.isInteger(selectedStructureIndex)) scrollStructureBlockToTop(selectedStructureIndex);
+    const content = getSelectedStructureSpeechText() || getWholePsalmSpeechText();
+    speakCantonese(content, btn, '🔊 朗讀段落中');
+}
+
+function readWholePsalmRepeat() {
+    const btn = document.getElementById('copyScriptureBtn');
+    if (!currentPsalm) { showCopyFeedback('⚠️ 尚未選擇詩篇', btn); return; }
+    const chunks = getStructuredSpeechChunks();
+    if (chunks.length) {
+        speakSequentialChunks(chunks, btn, true);
+        return;
+    }
+    const panel = document.getElementById('scripturePanel');
+    if (panel) panel.scrollTo({ top: 0, behavior: 'smooth' });
+    const content = getWholePsalmSpeechText();
+    speakCantonese(content, btn, '🔁 循環朗讀全篇中', true);
+}
+
+function readSelectedSegmentRepeat() {
+    const btn = document.getElementById('copySegmentBtn');
+    if (!currentPsalm) { showCopyFeedback('⚠️ 尚未選擇詩篇', btn); return; }
+    if (Number.isInteger(selectedStructureIndex)) scrollStructureBlockToTop(selectedStructureIndex);
+    const content = getSelectedStructureSpeechText() || getWholePsalmSpeechText();
+    speakCantonese(content, btn, '🔁 循環朗讀段落中', true);
+}
+
+function bindShortAndLongPressSpeak(button, onShortPress, onLongPress) {
+    if (!button) return;
+    const LONG_PRESS_MS = 450;
+    let timer = null;
+    let longTriggered = false;
+    let suppressClick = false;
+
+    const clearTimer = () => {
+        if (timer) clearTimeout(timer);
+        timer = null;
+    };
+
+    const start = () => {
+        clearTimer();
+        longTriggered = false;
+        timer = setTimeout(() => {
+            longTriggered = true;
+            suppressClick = true;
+            onLongPress();
+        }, LONG_PRESS_MS);
+    };
+
+    const end = () => {
+        if (!timer && !longTriggered) return;
+        clearTimer();
+        if (!longTriggered) onShortPress();
+    };
+
+    button.addEventListener('pointerdown', start);
+    button.addEventListener('pointerup', end);
+    button.addEventListener('pointercancel', clearTimer);
+    button.addEventListener('pointerleave', clearTimer);
+
+    button.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        start();
+    }, { passive: false });
+    button.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        end();
+    }, { passive: false });
+    button.addEventListener('touchcancel', clearTimer, { passive: true });
+
+    button.addEventListener('contextmenu', (e) => e.preventDefault());
+    button.addEventListener('click', (e) => {
+        if (suppressClick) {
+            suppressClick = false;
+            e.preventDefault();
+        }
+    });
+}
+
+function bindRepeatPressBtn(button, onAction) {
+    if (!button) return;
+    const LONG_PRESS_DELAY = 500;
+    const REPEAT_INTERVAL = 150;
+    let pressTimer = null;
+    let repeatTimer = null;
+    let longActivated = false;
+    let suppressClick = false;
+
+    const cancelAll = () => {
+        clearTimeout(pressTimer);
+        clearInterval(repeatTimer);
+        pressTimer = null;
+        repeatTimer = null;
+    };
+
+    const startPress = (e) => {
+        e.preventDefault();
+        cancelAll();
+        longActivated = false;
+        pressTimer = setTimeout(() => {
+            longActivated = true;
+            suppressClick = true;
+            onAction();
+            repeatTimer = setInterval(onAction, REPEAT_INTERVAL);
+        }, LONG_PRESS_DELAY);
+    };
+
+    const endPress = (e) => {
+        e.preventDefault();
+        const wasLong = longActivated;
+        cancelAll();
+        if (!wasLong) onAction();
+    };
+
+    button.addEventListener('touchstart', startPress, { passive: false });
+    button.addEventListener('touchend', endPress, { passive: false });
+    button.addEventListener('touchcancel', (e) => { e.preventDefault(); cancelAll(); }, { passive: false });
+    button.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') { cancelAll(); longActivated = false; pressTimer = setTimeout(() => { longActivated = true; suppressClick = true; onAction(); repeatTimer = setInterval(onAction, REPEAT_INTERVAL); }, LONG_PRESS_DELAY); } });
+    button.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') { const wasLong = longActivated; cancelAll(); if (!wasLong) onAction(); } });
+    button.addEventListener('pointercancel', (e) => { if (e.pointerType !== 'touch') cancelAll(); });
+    button.addEventListener('pointerleave', (e) => { if (e.pointerType !== 'touch') cancelAll(); });
+    button.addEventListener('contextmenu', (e) => e.preventDefault());
+    button.addEventListener('click', (e) => { if (suppressClick) { suppressClick = false; e.preventDefault(); e.stopPropagation(); } });
+}
+
+function cancelCurrentSpeech() {
+    // 只取消朗讀，不停止順序播放（保留 sequentialPlayActive）
+    if (!('speechSynthesis' in window)) return;
+    speechRepeatEnabled = false;
+    speechSessionId += 1;
+    window.speechSynthesis.cancel();
+    clearSpeakingButtonState();
+    if (speechState.isSpeaking) {
+        speechState.wasStopped = true;
+        speechState.isSpeaking = false;
+    }
+}
+
+function stopSpeaking() {
+    cancelCurrentSpeech();
+    // 停止順序播放
+    sequentialPlayActive = false;
+}
+
+
+
+function resumeSpeakingIfNeeded() {
+    // 如果之前正在朗讀且未完成，則自動恢復朗讀
+    if (speechState.wasFinished || speechState.wasStopped) {
+        // 已完成或已停止，不自動恢復
+        return;
+    }
+    if (!speechState.isSpeaking && speechState.mode) {
+        // 根據之前保存的模式恢復朗讀（speed 和 pitch 保持用戶手動設定值，不從 speechState 恢復）
+        if (speechState.mode === 'whole') {
+            // 從選中的段落開始朗讀全篇（而不是從頭開始）
+            const chunks = getStructuredSpeechChunks();
+            if (chunks.length > 0 && Number.isInteger(selectedStructureIndex) && selectedStructureIndex >= 0 && selectedStructureIndex < chunks.length) {
+                const btn = document.getElementById('copyScriptureBtn');
+                if (speechState.isRepeat) {
+                    // 循環模式：從 selectedStructureIndex 開始，到最後，再回到開頭
+                    const reordered = [...chunks.slice(selectedStructureIndex), ...chunks.slice(0, selectedStructureIndex)];
+                    speakSequentialChunks(reordered, btn, true);
+                } else {
+                    // 單次模式：只從 selectedStructureIndex 到最後，不包含前面的部分
+                    const partial = chunks.slice(selectedStructureIndex);
+                    speakSequentialChunks(partial, btn, false);
+                }
+            } else {
+                // 沒有結構化段落，用傳統方式從頭開始
+                if (speechState.isRepeat) {
+                    readWholePsalmRepeat();
+                } else {
+                    readWholePsalm();
+                }
+            }
+        } else if (speechState.mode === 'segment') {
+            if (speechState.isRepeat) {
+                readSelectedSegmentRepeat();
+            } else {
+                readSelectedSegment();
+            }
+        }
+    }
+}
+
+function showCopyFeedback(msg, btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> ${msg}`;
+    btn.classList.add('bg-green-100','text-green-700');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('bg-green-100','text-green-700'); }, 1800);
+}
+
+// ============================================================================
+// 順序播放功能
+// ============================================================================
+
+/**
+ * 根據當前篩選的 typeId 取得詩篇編號列表（按數字排序）
+ * @param {number|null} typeId - 篩選的 typeId，null 表示全部
+ * @returns {number[]} 詩篇編號陣列
+ */
+function getFilteredPsalmList(typeId) {
+    const list = [];
+    const major = (typeId == null) ? currentFilterMajor : null;
+    for (let i = 1; i <= 150; i++) {
+        if (psalmMatchesFilter(i, typeId, major)) list.push(i);
+    }
+    return list.sort((a, b) => a - b);
+}
+
+/**
+ * 取得當前詩篇在篩選列表中的下一首
+ * @param {number} current - 當前詩篇編號
+ * @param {number[]} list - 篩選列表
+ * @returns {number|null} 下一首詩篇編號，若無則返回 null
+ */
+function getNextPsalmInSequence(current, list) {
+    const idx = list.indexOf(current);
+    if (idx === -1) return null;
+    if (idx + 1 < list.length) return list[idx + 1];
+    return null; // 已到最後一首
+}
+
+/**
+ * 開始順序播放
+ * 根據當前篩選的 typeId，朗讀當前詩篇，完成後自動跳到下一首
+ */
+function startSequentialPlay() {
+    if (!currentPsalm) {
+        showCopyFeedback('⚠️ 尚未選擇詩篇', document.getElementById('sequentialPlayBtn'));
+        return;
+    }
+    
+    sequentialPlayActive = true;
+    
+    // 朗讀當前詩篇
+    const btn = document.getElementById('copyScriptureBtn');
+    const chunks = getStructuredSpeechChunks();
+    if (chunks.length) {
+        // 使用 speakSequentialChunks 但修改 onend 行為
+        speakSequentialChunksWithCallback(chunks, btn, false);
+    } else {
+        const content = getWholePsalmSpeechText();
+        speakCantoneseWithCallback(content, btn, '🔊 順序朗讀中');
+    }
+}
+
+/**
+ * 帶回調的 speakCantonese，朗讀完成後檢查是否需要跳到下一首
+ */
+function speakCantoneseWithCallback(text, btn, successMsg) {
+    const content = (text || '').trim();
+    if (!content) return;
+    if (!('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') return;
+    applySpeakingButtonState(btn, false);
+    speechRepeatEnabled = false;
+    speechState.isSpeaking = true;
+    speechState.mode = 'whole';
+    speechState.isRepeat = false;
+    speechState.wasFinished = false;
+    speechState.wasStopped = false;
+    speechState.savedRate = speechRate;
+    speechState.savedPitch = speechPitch;
+    const mySession = ++speechSessionId;
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(content);
+    utter.lang = 'zh-HK';
+    utter.rate = speechRate;
+    utter.pitch = speechPitch;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = pickBestChineseVoice(voices);
+    if (preferred) utter.voice = preferred;
+    utter.onerror = () => {
+        speechRepeatEnabled = false;
+        clearSpeakingButtonState();
+        speechState.isSpeaking = false;
+        speechState.wasStopped = true;
+        sequentialPlayActive = false;
+    };
+    utter.onend = () => {
+        if (mySession !== speechSessionId) return;
+        clearSpeakingButtonState();
+        speechState.isSpeaking = false;
+        speechState.wasFinished = true;
+        // 檢查順序播放是否仍活躍
+        if (sequentialPlayActive) {
+            onSequentialPsalmEnd();
+        }
+    };
+    window.speechSynthesis.speak(utter);
+}
+
+/**
+ * 帶回調的 speakSequentialChunks，所有段落朗讀完成後檢查是否需要跳到下一首
+ */
+function speakSequentialChunksWithCallback(chunks, btn, repeatCycle = false) {
+    if (!chunks.length) return;
+    if (!('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') return;
+    applySpeakingButtonState(btn, repeatCycle);
+    speechRepeatEnabled = repeatCycle;
+    speechState.isSpeaking = true;
+    speechState.mode = 'whole';
+    speechState.isRepeat = repeatCycle;
+    speechState.wasFinished = false;
+    speechState.wasStopped = false;
+    speechState.savedRate = speechRate;
+    speechState.savedPitch = speechPitch;
+    const mySession = ++speechSessionId;
+    window.speechSynthesis.cancel();
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = pickBestChineseVoice(voices);
+
+    const speakAt = (idx) => {
+        if (mySession !== speechSessionId) return;
+        const item = chunks[idx];
+        if (!item) {
+            clearSpeakingButtonState();
+            speechState.isSpeaking = false;
+            speechState.wasFinished = true;
+            // 所有段落朗讀完成，檢查順序播放
+            if (sequentialPlayActive) {
+                onSequentialPsalmEnd();
+            }
+            return;
+        }
+        if (Number.isInteger(item.index)) scrollStructureBlockToTop(item.index);
+        const utter = new SpeechSynthesisUtterance(item.text);
+        utter.lang = 'zh-HK';
+        utter.rate = speechRate;
+        utter.pitch = speechPitch;
+        if (preferred) utter.voice = preferred;
+        utter.onerror = () => {
+            if (mySession !== speechSessionId) return;
+            speechRepeatEnabled = false;
+            clearSpeakingButtonState();
+            speechState.isSpeaking = false;
+            speechState.wasStopped = true;
+            sequentialPlayActive = false;
+        };
+        utter.onend = () => {
+            if (mySession !== speechSessionId) return;
+            speakAt(idx + 1);
+        };
+        window.speechSynthesis.speak(utter);
+    };
+
+    speakAt(0);
+}
+
+/**
+ * 當前詩篇朗讀完成後的回調
+ * 檢查篩選類型是否改變，並跳到下一首
+ */
+function onSequentialPsalmEnd() {
+    if (!sequentialPlayActive) return;
+    
+    // 獲取當前有效的篩選類型
+    const effectiveTypeId = currentFilterTypeId;
+    const list = getFilteredPsalmList(effectiveTypeId);
+    
+    if (!list.length) {
+        sequentialPlayActive = false;
+        return;
+    }
+    
+    // 找到當前詩篇在列表中的位置
+    const currentIdx = list.indexOf(currentPsalm);
+    let nextPsalm = null;
+    
+    if (currentIdx !== -1 && currentIdx + 1 < list.length) {
+        // 同一類型中還有下一首
+        nextPsalm = list[currentIdx + 1];
+    } else if (currentIdx === -1 && list.length > 0) {
+        // 當前詩篇不在列表中（篩選改變了），跳到列表第一首
+        nextPsalm = list[0];
+    }
+    // 如果 currentIdx 是最後一首，nextPsalm 保持 null，順序播放結束
+    
+    if (nextPsalm !== null) {
+        // 跳到下一首並朗讀
+        const cells = document.querySelectorAll('.psalm-cell');
+        let targetCell = null;
+        cells.forEach(cell => { if (parseInt(cell.textContent) === nextPsalm) targetCell = cell; });
+        if (targetCell) {
+            showDetail(nextPsalm, targetCell);
+            // showDetail 會停止朗讀，所以需要重新開始
+            setTimeout(() => {
+                if (sequentialPlayActive) {
+                    const btn = document.getElementById('copyScriptureBtn');
+                    const chunks = getStructuredSpeechChunks();
+                    if (chunks.length) {
+                        speakSequentialChunksWithCallback(chunks, btn, false);
+                    } else {
+                        const content = getWholePsalmSpeechText();
+                        speakCantoneseWithCallback(content, btn, '🔊 順序朗讀中');
+                    }
+                }
+            }, 100);
+        } else {
+            sequentialPlayActive = false;
+        }
+    } else {
+        // 已到最後一首，結束順序播放
+        sequentialPlayActive = false;
+        showCopyFeedback('✅ 順序朗讀完成', document.getElementById('sequentialPlayBtn'));
+    }
+}
+
+function init() {
+    rebuildCategoriesFromClassification();
+
+    // 初始化預設資料（若 OFFLINE_DB 缺少某篇，補上預設值並設 typeId=8 哀歌）
+    for (let i = 1; i <= 150; i++) {
+        if (!OFFLINE_DB[i]) OFFLINE_DB[i] = { typeId: 8, type: "哀歌", theme: `詩篇第 ${i} 篇`, content: "請自行補充內容", golden: "耶和華是我的拯救", ref: `詩篇 ${i}:1` };
+        if (!FULL_TEXTS[i]) FULL_TEXTS[i] = { title: `詩篇第 ${i} 篇`, text: `詩篇第 ${i} 篇的經文將在您加入完整資料後顯示。` };
+        if (!PSALM_STRUCTURE[i]) PSALM_STRUCTURE[i] = "";
+    }
+    generatePsalmMap(); calculateCounts();
+    
+    // 建立詩篇矩陣（小圓形，顏色依五大類）
+    const grid = document.getElementById('psalmGrid'); grid.innerHTML = '';
+    for (let i = 1; i <= 150; i++) {
+        const cls = getPsalmClass(i);
+        const hex = MAJOR_COLORS[cls.major] || '#94a3b8';
+        const cell = document.createElement('button'); cell.type = 'button'; cell.className = 'psalm-cell text-slate-700'; cell.style.backgroundColor = hex; cell.textContent = i; cell.setAttribute('aria-label', `選擇詩篇第 ${i} 篇`);
+        cell.onclick = (e) => { e.stopPropagation(); showDetail(i, cell); };
+        grid.appendChild(cell);
+    }
+    
+    // 建立五大類分組 + 17類圖例
+    const legendDiv = document.getElementById('legend'); legendDiv.innerHTML = '';
+    const majors = CLASSIFICATION.majors && CLASSIFICATION.majors.length
+        ? CLASSIFICATION.majors
+        : Object.keys(MAJOR_COLORS).map(id => ({ id, hex: MAJOR_COLORS[id] }));
+    majors.forEach(major => {
+        const group = document.createElement('div');
+        group.className = 'legend-group';
+        const title = document.createElement('button');
+        title.type = 'button';
+        title.className = 'legend-group-title';
+        title.setAttribute('data-major', major.id);
+        title.style.background = (major.hex || MAJOR_COLORS[major.id] || '#e2e8f0') + '66';
+        title.innerHTML = `<span>${major.id}</span><span class="font-bold bg-white/80 px-2 py-0.5 rounded-full text-[10px]">${countMajor(major.id)}</span>`;
+        title.setAttribute('aria-label', `篩選五大類 ${major.id}`);
+        title.onclick = () => {
+            if (!sequentialPlayActive) stopSpeaking();
+            filterMajor(major.id);
+        };
+        group.appendChild(title);
+        (CLASSIFICATION.types || []).filter(t => t.major === major.id).forEach(t => {
+            const c = categories[t.id];
+            const item = document.createElement('button'); item.type = 'button'; item.className = "legend-item"; item.setAttribute('aria-label', `篩選${t.name}`);
+            item.setAttribute('data-type-id', t.id);
+            item.style.background = `${t.hex}33`;
+            item.style.borderLeft = `4px solid ${t.hex}`;
+            item.innerHTML = `<span class="flex items-center gap-1.5"><span class="type-dot" style="background:${t.hex}"></span><span class="text-sm text-slate-700">${t.name}</span></span><span class="font-bold bg-white/80 px-2.5 py-0.5 rounded-full text-xs">${c ? c.count : 0}</span>`;
+            item.onclick = () => {
+                if (!sequentialPlayActive) stopSpeaking();
+                filter(t.id);
+            };
+            group.appendChild(item);
+        });
+        legendDiv.appendChild(group);
+    });
+
+
+    syncLandscapeLegendLayout();
+    syncPanelSwitchButtons();
+    
+    document.getElementById('resetBtn').onclick = () => { 
+        // 順序播放中：不取消當前朗讀，讓當前詩篇繼續朗讀
+        // 朗讀完成後 onSequentialPsalmEnd() 會檢查新的篩選類型（null = 全部詩篇）
+        if (!sequentialPlayActive) {
+            stopSpeaking();
+        }
+        document.querySelectorAll('.psalm-cell').forEach(c => { c.classList.remove('dimmed'); c.classList.remove('lit'); });
+        document.getElementById('resetBtn').classList.add('hidden'); 
+        clearLegendActive();
+        const display = document.getElementById('filterTypeDisplay');
+        display.classList.add('hidden');
+        display.textContent = '';
+        currentFilterTypeId = null;
+        currentFilterMajor = null;
+    };
+
+
+
+
+    
+    document.addEventListener('keydown', (e) => { 
+        if (e.key === 'Tab') handleTab(e); 
+        else if (['ArrowRight','ArrowLeft','ArrowDown','ArrowUp'].includes(e.key) && currentPsalm) { 
+            let t = currentPsalm; 
+            if (e.key === 'ArrowRight') t+=1; 
+            else if(e.key==='ArrowLeft') t-=1; 
+            else if(e.key==='ArrowDown') t+=15; 
+            else t-=15; 
+            if(t>=1 && t<=150) moveToPsalm(t); 
+        } 
+    });
+    
+    bindShortAndLongPressSpeak(document.getElementById('copyScriptureBtn'), readWholePsalm, readWholePsalmRepeat);
+    bindShortAndLongPressSpeak(document.getElementById('copySegmentBtn'), readSelectedSegment, readSelectedSegmentRepeat);
+    document.getElementById('stopSpeakBtn').addEventListener('click', stopSpeaking);
+    document.getElementById('rateDownBtn').addEventListener('click', (e) => adjustSpeechSetting('rate', -0.05, e.currentTarget));
+    document.getElementById('rateUpBtn').addEventListener('click', (e) => adjustSpeechSetting('rate', 0.05, e.currentTarget));
+    document.getElementById('pitchDownBtn').addEventListener('click', (e) => adjustSpeechSetting('pitch', -0.05, e.currentTarget));
+    document.getElementById('pitchUpBtn').addEventListener('click', (e) => adjustSpeechSetting('pitch', 0.05, e.currentTarget));
+    document.getElementById('sequentialPlayBtn').addEventListener('click', startSequentialPlay);
+    bindRepeatPressBtn(document.getElementById('prevPsalmBtn'), () => { selectRelativePsalm(-1); });
+    bindRepeatPressBtn(document.getElementById('nextPsalmBtn'), () => { selectRelativePsalm(1); });
+
+    bindRepeatPressBtn(document.getElementById('prevSectionBtn'), () => { selectRelativeStructure(-1); });
+    bindRepeatPressBtn(document.getElementById('nextSectionBtn'), () => { selectRelativeStructure(1); });
+    bindPanelSwitchButtons();
+    window.addEventListener('resize', () => {
+        syncLandscapeLegendLayout();
+        syncPanelSwitchButtons();
+    });
+}
+
+let hasInitialized = false;
+function startApp() {
+    if (hasInitialized) return;
+    hasInitialized = true;
+    if (!window.PSALM_APP_DATA) {
+        alert('找不到 psalm-data v2.js，請確認 HTML 與資料檔在同一資料夾。');
+    } else if (!window.PSALM_APP_DATA.CLASSIFICATION) {
+        alert('資料檔缺少 17 類 CLASSIFICATION，請使用更新後的 psalm-data v2.js。');
+    }
+    init();
+}
+
+document.addEventListener('DOMContentLoaded', startApp, { once: true });
+window.addEventListener('pageshow', startApp);
+</script>
+</body>
+</html>
