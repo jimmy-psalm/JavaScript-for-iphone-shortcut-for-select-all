@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>詩篇全景 | 五大類·17類搜尋與經文朗讀</title>
+    <title>詩篇全景 | 搜尋手冊與經文朗讀</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -92,6 +92,53 @@
             font-weight: 700; cursor: pointer; border: 1px solid rgba(15,23,42,0.08);
         }
         .tag-pill.lit-pill { outline: 2px solid #1e293b; outline-offset: 1px; }
+
+        .facet-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 6px 0 6px; }
+        .facet-tab, .guide-tab {
+            appearance: none; -webkit-appearance: none; border: none; cursor: pointer;
+            border-radius: 10px; padding: 8px 4px; font-size: 0.82rem; font-weight: 800;
+            background: #e8ebe6; color: #334155;
+        }
+        .facet-tab.active { background: #1e3a5f; color: #fff; }
+        .facet-hint { font-size: 0.72rem; color: #64748b; font-weight: 600; margin: 0 0 8px; line-height: 1.4; }
+        .guide-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin: 0 0 8px; }
+        .guide-tabs.is-hidden { display: none; }
+        .guide-tab.active { background: #166534; color: #fff; }
+        .guide-result {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+            background: #f3f4ee; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px;
+        }
+        .guide-result-text { font-size: 0.82rem; font-weight: 700; color: #334155; }
+        .guide-clear {
+            appearance: none; -webkit-appearance: none; cursor: pointer;
+            border: 1px solid #ef4444; color: #dc2626; background: #fff;
+            border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; font-weight: 800;
+        }
+        .guide-clear[disabled] { opacity: 0.35; cursor: default; }
+        .guide-cat { background: #f7f4ee; border-radius: 12px; padding: 8px 10px 10px; margin-bottom: 8px; }
+        .guide-cat-title {
+            font-size: 0.78rem; font-weight: 800; color: #1e293b;
+            border-bottom: 1px solid #d6d3c9; padding-bottom: 4px; margin-bottom: 8px;
+        }
+        .guide-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .guide-pill {
+            appearance: none; -webkit-appearance: none; border: none; cursor: pointer;
+            background: #e5e5e5; color: #1f2937; border-radius: 9999px;
+            padding: 4px 9px; font-size: 0.72rem; font-weight: 700; line-height: 1.3;
+        }
+        .guide-pill.selected { background: #1f3d3a; color: #fff; }
+        .guide-analysis-block { margin-bottom: 0.85rem; }
+        .guide-analysis-title { font-size: 0.95rem; font-weight: 800; color: #166534; margin-bottom: 0.35rem; }
+        .guide-analysis-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.4rem; }
+        .guide-analysis-pill {
+            appearance: none; -webkit-appearance: none; border: none; cursor: pointer;
+            background: #dcfce7; color: #166534; border-radius: 9999px;
+            padding: 3px 10px; font-size: 0.75rem; font-weight: 700;
+        }
+        .guide-analysis-desc {
+            background: #f3f4f6; color: #334155; border-radius: 10px;
+            padding: 8px 10px; font-size: 0.82rem; line-height: 1.55;
+        }
 
         button, .psalm-cell, .legend-item { touch-action: manipulation; }
         @media (min-width: 768px) {
@@ -336,12 +383,20 @@
         <!-- Panel 1 -->
         <div class="panel-card p-3">
             <div id="panel1Header" class="flex items-center justify-between border-b-2 border-slate-300 pb-1 mb-1.5">
-                <h3 class="font-extrabold text-gray-800 text-base">五大類 · 17類搜尋</h3>
+                <div>
+                    <h3 class="font-extrabold text-gray-800 text-base">📖 搜尋手冊</h3>
+                    <p class="text-[11px] text-slate-500 font-semibold mt-0.5">先選找法，再選標籤；亮起的圓點可點來看經文</p>
+                </div>
                 <button id="jumpDownBtn1" type="button" class="panel-jump-btn" aria-label="切換到下方面板">▼</button>
-                <span class="text-[9px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500 font-mono">2026/08/29 17類</span>
+            </div>
+            <div id="facetTabs" class="facet-tabs"></div>
+            <p id="facetHint" class="facet-hint"></p>
+            <div id="guideTabs" class="guide-tabs is-hidden"></div>
+            <div class="guide-result">
+                <span id="guideResultText" class="guide-result-text">符合: 150 首</span>
+                <button id="resetBtn" type="button" class="guide-clear" disabled>清除</button>
             </div>
             <div id="legend" class="space-y-0.5 max-h-[380px] overflow-y-auto"></div>
-            <button id="resetBtn" class="w-full mt-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm hidden transition active:scale-95">🔄 重置篩選 · 全部150篇</button>
         </div>
 
         <!-- Panel 2 -->
@@ -381,9 +436,10 @@
                         <p id="pTypeLabel" class="text-base font-bold whitespace-nowrap"></p>
                     </div>
                     <div>
-                        <div class="info-label">17類標籤（亮起＝本篇所屬，點選可搜尋）</div>
-                        <div id="tagDots"></div>
-                        <div id="tagPills" class="mt-2 flex flex-wrap gap-1.5"></div>
+                        <div class="info-label">五向導分析（點選標籤可到綜合導讀篩選）</div>
+                        <div id="guideAnalysis" class="mt-2"></div>
+                        <div id="tagDots" class="hidden"></div>
+                        <div id="tagPills" class="hidden"></div>
                     </div>
 
                     <!-- 詩篇結構分析 -->
@@ -464,7 +520,35 @@
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/gh/jimmy-psalm/JavaScript-for-iphone-shortcut-for-select-all@main/psalm-data-17.js"></script>
+<script>
+(function loadPsalmSources() {
+    const files = ['psalm-data-17.js', 'psalm_data_complete.js', 'psalm-search-index.js'];
+    const repo = 'jimmy-psalm/JavaScript-for-iphone-shortcut-for-select-all';
+    const branch = 'cursor/psalm-search-manual-d1c5';
+    function add(src) {
+        return new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+    async function one(name) {
+        const candidates = [
+            './' + name,
+            'https://cdn.jsdelivr.net/gh/' + repo + '@main/' + name,
+            'https://rawcdn.githack.com/' + repo + '/' + branch + '/' + name
+        ];
+        for (const src of candidates) {
+            try { await add(src); return; } catch (err) { /* try next */ }
+        }
+    }
+    Promise.all(files.map(one)).then(function () {
+        document.dispatchEvent(new Event('psalm-data-ready'));
+    });
+})();
+</script>
 <script>
 // ============================================================================
 // 📍 位置 1：經文資料（保持原有 FULL_TEXTS，此處省略以節省空間，請保留你的完整資料）
@@ -512,9 +596,25 @@ let speechState = {
 
 // 順序播放相關變數
 let sequentialPlayActive = false;  // 是否正在順序播放
-let currentFilterTypeId = null;    // 當前篩選的 17類 id（null 表示無篩選）
-let currentFilterMajor = null;     // 當前篩選的五大類（與 typeId 互斥）
+let currentFilterTypeId = null;    // 舊 17類 id（保留給分析面板小圓點）
+let currentFilterMajor = null;
 
+function asTagList(value) {
+    if (Array.isArray(value)) return value.filter(Boolean);
+    return value ? [value] : [];
+}
+
+function buildGuideFilterFromIndex(index) {
+    if (index && index.guide && index.guide.groups) return index.guide;
+    return { groups: [], categories: {}, psalms: {} };
+}
+
+let SEARCH_INDEX = window.SEARCH_INDEX || {};
+let GUIDE_FILTER = buildGuideFilterFromIndex(SEARCH_INDEX);
+let activeFacet = 'genre';
+let activeGuideGroup = '文學';
+let selectedSimpleTags = []; // 文體／處境／傳統：多標 OR
+let selectedGuideTags = {}; // { 類別名稱: [標籤] }
 
 let CLASSIFICATION = (window.PSALM_APP_DATA && window.PSALM_APP_DATA.CLASSIFICATION) || { majors: [], types: [], psalms: {} };
 const MAJOR_COLORS = {
@@ -894,11 +994,73 @@ function getPsalmClass(n) {
     return { major, primary, tagIds: tagIds.map(Number), tags };
 }
 
+function getGuideLabels(n) {
+    return (GUIDE_FILTER.psalms && (GUIDE_FILTER.psalms[String(n)] || GUIDE_FILTER.psalms[n])) || {};
+}
+
+function selectedGuideEntries() {
+    return Object.entries(selectedGuideTags).filter(([, tags]) => asTagList(tags).length > 0);
+}
+
+function labelsForCat(labels, cat) {
+    return asTagList(labels[cat]);
+}
+
+function psalmMatchesGuide(n) {
+    const labels = getGuideLabels(n);
+    return selectedGuideEntries().every(([cat, tags]) => {
+        const have = labelsForCat(labels, cat);
+        return asTagList(tags).some(tag => have.includes(tag));
+    });
+}
+
+function simpleFacetPsalms(tag) {
+    const facet = SEARCH_INDEX[activeFacet] || {};
+    const list = (facet.psalms && facet.psalms[tag]) || [];
+    return list.map(Number);
+}
+
+function psalmMatchesSimple(n) {
+    if (!selectedSimpleTags.length) return true;
+    return selectedSimpleTags.some(tag => simpleFacetPsalms(tag).includes(Number(n)));
+}
+
+function hasActiveSearch() {
+    if (activeFacet === 'guide') return selectedGuideEntries().length > 0;
+    return selectedSimpleTags.length > 0;
+}
+
 function psalmMatchesFilter(n, typeId = currentFilterTypeId, major = currentFilterMajor) {
+    if (hasActiveSearch()) {
+        return activeFacet === 'guide' ? psalmMatchesGuide(n) : psalmMatchesSimple(n);
+    }
     const info = getPsalmClass(n);
     if (typeId != null) return info.tagIds.includes(Number(typeId));
     if (major) return info.major === major;
     return true;
+}
+
+function countSearchMatches() {
+    let c = 0;
+    for (let i = 1; i <= 150; i++) if (psalmMatchesFilter(i)) c++;
+    return c;
+}
+
+function countGuideTag(cat, tag) {
+    let c = 0;
+    for (let i = 1; i <= 150; i++) {
+        if (labelsForCat(getGuideLabels(i), cat).includes(tag)) c++;
+    }
+    return c;
+}
+
+function countSimpleTag(tag) {
+    return simpleFacetPsalms(tag).length;
+}
+
+function genreLabelsFor(n) {
+    const facet = SEARCH_INDEX.genre || {};
+    return (facet.tags || []).filter(tag => ((facet.psalms && facet.psalms[tag]) || []).map(Number).includes(Number(n)));
 }
 
 function generatePsalmMap() {
@@ -965,10 +1127,11 @@ function showDetail(n, el) {
     document.getElementById('pTitleDisplay').textContent = `第 ${n} 篇`;
     
     // 五大類 + 主分類（舊 type 僅作補充）
-    const oldType = data.type ? `｜舊標籤：${data.type}` : '';
-    document.getElementById('pTypeLabel').textContent = `(五大類：${cls.major} · ${cls.primary}${oldType})`;
+    const genreText = genreLabelsFor(n).join(' · ') || cls.primary;
+    document.getElementById('pTypeLabel').textContent = `(文體：${genreText})`;
     document.getElementById('pTypeLabel').style.color = majorHex;
     renderPsalmTagDots(n);
+    renderGuideAnalysis(n);
     document.getElementById('pTheme').textContent = data.theme;
     document.getElementById('pContent').textContent = data.content;
     document.getElementById('pGolden').textContent = `「${data.golden}」`;
@@ -1003,79 +1166,199 @@ function clearLegendActive() {
     document.querySelectorAll('.legend-item, .legend-group-title').forEach(item => item.classList.remove('legend-active'));
 }
 
+function currentSelectedLabels() {
+    if (activeFacet === 'guide') {
+        return selectedGuideEntries().flatMap(([cat, tags]) => asTagList(tags).map(tag => `${cat}·${tag}`));
+    }
+    return selectedSimpleTags.slice();
+}
+
+function updateGuideResultBar() {
+    const selected = currentSelectedLabels();
+    const matches = hasActiveSearch() ? countSearchMatches() : 150;
+    const text = document.getElementById('guideResultText');
+    if (text) {
+        text.textContent = selected.length
+            ? `符合: ${matches} 首 (選 ${selected.length} 標籤)`
+            : '符合: 150 首';
+    }
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) resetBtn.disabled = !hasActiveSearch() && !currentFilterTypeId && !currentFilterMajor;
+    const display = document.getElementById('filterTypeDisplay');
+    if (display) {
+        if (selected.length) {
+            display.textContent = selected.join(' + ');
+            display.classList.remove('hidden');
+        } else {
+            display.textContent = '';
+            display.classList.add('hidden');
+        }
+    }
+}
+
 function applyGridFilter() {
+    const filtering = hasActiveSearch() || currentFilterTypeId != null || currentFilterMajor;
     document.querySelectorAll('.psalm-cell').forEach(cell => {
         const num = parseInt(cell.textContent, 10);
         const match = psalmMatchesFilter(num);
-        cell.classList.toggle('dimmed', !match);
-        cell.classList.toggle('lit', match && (currentFilterTypeId != null || currentFilterMajor));
+        cell.classList.toggle('dimmed', filtering && !match);
+        cell.classList.toggle('lit', filtering && match);
     });
+    updateGuideResultBar();
+    if (currentPsalm) {
+        renderGuideAnalysis(currentPsalm);
+        renderPsalmTagDots(currentPsalm);
+    }
+}
+
+function toggleSimpleTag(tag) {
+    if (!sequentialPlayActive) stopSpeaking();
+    const i = selectedSimpleTags.indexOf(tag);
+    if (i >= 0) selectedSimpleTags.splice(i, 1);
+    else selectedSimpleTags.push(tag);
+    currentFilterTypeId = null;
+    currentFilterMajor = null;
+    renderSearchManual();
+    applyGridFilter();
+}
+
+function toggleGuideTag(category, tag) {
+    if (!sequentialPlayActive) stopSpeaking();
+    const cur = asTagList(selectedGuideTags[category]);
+    const next = cur.includes(tag) ? cur.filter(t => t !== tag) : cur.concat(tag);
+    if (next.length) selectedGuideTags[category] = next;
+    else delete selectedGuideTags[category];
+    currentFilterTypeId = null;
+    currentFilterMajor = null;
+    renderSearchManual();
+    applyGridFilter();
+}
+
+function setActiveFacet(facetId) {
+    activeFacet = facetId;
+    if (facetId === 'guide' && !activeGuideGroup) activeGuideGroup = '文學';
+    currentFilterTypeId = null;
+    currentFilterMajor = null;
+    renderSearchManual();
+    applyGridFilter();
+}
+
+function setActiveGuideGroup(groupId) {
+    activeGuideGroup = groupId;
+    activeFacet = 'guide';
+    renderSearchManual();
+}
+
+function clearGuideFilters() {
+    if (!sequentialPlayActive) stopSpeaking();
+    selectedGuideTags = {};
+    selectedSimpleTags = [];
+    currentFilterTypeId = null;
+    currentFilterMajor = null;
+    renderSearchManual();
+    applyGridFilter();
 }
 
 function filter(typeId) {
     const tid = Number(typeId);
     currentFilterTypeId = tid;
     currentFilterMajor = null;
-    applyGridFilter();
-    document.getElementById('resetBtn').classList.remove('hidden');
-    
-    clearLegendActive();
-    const activeItem = document.querySelector(`.legend-item[data-type-id="${tid}"]`);
-    if (activeItem) activeItem.classList.add('legend-active');
-    
-    const display = document.getElementById('filterTypeDisplay');
-    const cat = categories[tid];
-    if (cat) {
-        display.textContent = `${cat.major} · ${cat.name}`;
-        display.classList.remove('hidden');
+    const t = (CLASSIFICATION.types || []).find(x => Number(x.id) === tid);
+    if (t) {
+        activeFacet = 'genre';
+        selectedSimpleTags = [t.name];
     }
+    renderSearchManual();
+    applyGridFilter();
 }
 
 function filterMajor(majorName) {
     currentFilterTypeId = null;
     currentFilterMajor = majorName;
     applyGridFilter();
-    document.getElementById('resetBtn').classList.remove('hidden');
-    clearLegendActive();
-    const activeItem = document.querySelector(`.legend-group-title[data-major="${majorName}"]`);
-    if (activeItem) activeItem.classList.add('legend-active');
-    const display = document.getElementById('filterTypeDisplay');
-    display.textContent = `五大類：${majorName}`;
-    display.classList.remove('hidden');
+}
+
+function getOriginalPsalm(n) {
+    const raw = window.PSALM_DATA;
+    if (!raw || !Array.isArray(raw.psalms)) return null;
+    const key = String(n);
+    return raw.psalms.find(p => String(p.id || '').replace(/\D/g, '') === key) || null;
+}
+
+function renderGuideAnalysis(n) {
+    const box = document.getElementById('guideAnalysis');
+    if (!box) return;
+    box.innerHTML = '';
+    const raw = getOriginalPsalm(n);
+    const labels = getGuideLabels(n);
+    const groups = GUIDE_FILTER.groups || [];
+    if (!groups.length) {
+        box.innerHTML = '<p class="text-sm text-gray-400">找不到五向導分析資料。</p>';
+        return;
+    }
+    groups.forEach(group => {
+        const guide = group.id;
+        const block = document.createElement('div');
+        block.className = 'guide-analysis-block';
+        const title = document.createElement('div');
+        title.className = 'guide-analysis-title';
+        title.textContent = guide;
+        block.appendChild(title);
+        const pills = document.createElement('div');
+        pills.className = 'guide-analysis-pills';
+        (group.categories || []).forEach(cat => {
+            labelsForCat(labels, cat).forEach(tag => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'guide-analysis-pill';
+                const selected = asTagList(selectedGuideTags[cat]).includes(tag);
+                if (selected) {
+                    btn.style.background = '#1f3d3a';
+                    btn.style.color = '#fff';
+                }
+                btn.textContent = `${cat} · ${tag}`;
+                btn.setAttribute('aria-label', `篩選 ${guide} ${cat} ${tag}`);
+                btn.onclick = () => {
+                    setActiveGuideGroup(guide);
+                    toggleGuideTag(cat, tag);
+                };
+                pills.appendChild(btn);
+            });
+        });
+        block.appendChild(pills);
+        const desc = document.createElement('div');
+        desc.className = 'guide-analysis-desc';
+        desc.textContent = (raw && raw.description && raw.description[guide]) || '';
+        block.appendChild(desc);
+        box.appendChild(block);
+    });
 }
 
 function renderPsalmTagDots(n) {
     const dots = document.getElementById('tagDots');
     const pills = document.getElementById('tagPills');
     if (!dots || !pills) return;
-    const cls = getPsalmClass(n);
+    const labels = getGuideLabels(n);
     dots.innerHTML = '';
     pills.innerHTML = '';
-    (CLASSIFICATION.types || []).forEach(t => {
-        const lit = cls.tagIds.includes(t.id);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'tag-dot' + (lit ? ' lit' : '');
-        btn.style.background = t.hex;
-        btn.title = `${t.major} · ${t.name}`;
-        btn.setAttribute('aria-label', t.name + (lit ? '（本篇所屬）' : ''));
-        btn.onclick = () => {
-            if (!sequentialPlayActive) stopSpeaking();
-            filter(t.id);
-        };
-        dots.appendChild(btn);
-        if (lit) {
-            const pill = document.createElement('button');
-            pill.type = 'button';
-            pill.className = 'tag-pill';
-            pill.style.background = t.hex + '55';
-            pill.innerHTML = `<span class="type-dot" style="width:8px;height:8px;border-radius:50%;background:${t.hex};display:inline-block"></span>${t.name}`;
-            pill.onclick = () => {
-                if (!sequentialPlayActive) stopSpeaking();
-                filter(t.id);
-            };
-            pills.appendChild(pill);
-        }
+    (GUIDE_FILTER.groups || []).forEach(group => {
+        (group.categories || []).forEach(cat => {
+            labelsForCat(labels, cat).forEach(tag => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.className = 'tag-pill';
+                const selected = asTagList(selectedGuideTags[cat]).includes(tag);
+                pill.style.background = selected ? '#1f3d3a' : '#e2e8f0';
+                pill.style.color = selected ? '#fff' : '#1e293b';
+                pill.textContent = `${cat} · ${tag}`;
+                pill.setAttribute('aria-label', `篩選 ${group.id} ${cat} ${tag}`);
+                pill.onclick = () => {
+                    setActiveGuideGroup(group.id);
+                    toggleGuideTag(cat, tag);
+                };
+                pills.appendChild(pill);
+            });
+        });
     });
 }
 
@@ -1582,9 +1865,8 @@ function showCopyFeedback(msg, btn) {
  */
 function getFilteredPsalmList(typeId) {
     const list = [];
-    const major = (typeId == null) ? currentFilterMajor : null;
     for (let i = 1; i <= 150; i++) {
-        if (psalmMatchesFilter(i, typeId, major)) list.push(i);
+        if (psalmMatchesFilter(i, typeId, currentFilterMajor)) list.push(i);
     }
     return list.sort((a, b) => a - b);
 }
@@ -1787,6 +2069,110 @@ function onSequentialPsalmEnd() {
     }
 }
 
+function renderFacetTabs() {
+    const tabs = document.getElementById('facetTabs');
+    const hint = document.getElementById('facetHint');
+    if (!tabs) return;
+    tabs.innerHTML = '';
+    (SEARCH_INDEX.facets || []).forEach(facet => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'facet-tab' + (facet.id === activeFacet ? ' active' : '');
+        btn.textContent = facet.name;
+        btn.setAttribute('aria-label', `搜尋手冊：${facet.name}`);
+        btn.onclick = () => setActiveFacet(facet.id);
+        tabs.appendChild(btn);
+    });
+    if (hint) {
+        const current = (SEARCH_INDEX.facets || []).find(f => f.id === activeFacet);
+        hint.textContent = current ? current.hint : '';
+    }
+}
+
+function renderGuideTabs() {
+    const tabs = document.getElementById('guideTabs');
+    if (!tabs) return;
+    tabs.innerHTML = '';
+    const show = activeFacet === 'guide';
+    tabs.classList.toggle('is-hidden', !show);
+    if (!show) return;
+    (GUIDE_FILTER.groups || []).forEach(group => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'guide-tab' + (group.id === activeGuideGroup ? ' active' : '');
+        btn.setAttribute('data-group', group.id);
+        btn.textContent = group.id;
+        btn.setAttribute('aria-label', `顯示五向導 ${group.id}`);
+        btn.onclick = () => setActiveGuideGroup(group.id);
+        tabs.appendChild(btn);
+    });
+}
+
+function renderSimpleFacetPills() {
+    const legendDiv = document.getElementById('legend');
+    if (!legendDiv) return;
+    legendDiv.innerHTML = '';
+    const facet = SEARCH_INDEX[activeFacet] || {};
+    const box = document.createElement('div');
+    box.className = 'guide-cat';
+    const title = document.createElement('div');
+    title.className = 'guide-cat-title';
+    title.textContent = ((SEARCH_INDEX.facets || []).find(f => f.id === activeFacet) || {}).name || '';
+    box.appendChild(title);
+    const pills = document.createElement('div');
+    pills.className = 'guide-pills';
+    (facet.tags || []).forEach(tag => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'guide-pill' + (selectedSimpleTags.includes(tag) ? ' selected' : '');
+        btn.textContent = `${tag} (${countSimpleTag(tag)})`;
+        btn.setAttribute('aria-label', `篩選 ${tag}`);
+        btn.onclick = () => toggleSimpleTag(tag);
+        pills.appendChild(btn);
+    });
+    box.appendChild(pills);
+    legendDiv.appendChild(box);
+}
+
+function renderGuideCategories() {
+    const legendDiv = document.getElementById('legend');
+    if (!legendDiv) return;
+    legendDiv.innerHTML = '';
+    const group = (GUIDE_FILTER.groups || []).find(g => g.id === activeGuideGroup)
+        || (GUIDE_FILTER.groups || [])[0];
+    if (!group) return;
+    (group.categories || []).forEach(cat => {
+        const meta = (GUIDE_FILTER.categories || {})[cat] || {};
+        const box = document.createElement('div');
+        box.className = 'guide-cat';
+        const title = document.createElement('div');
+        title.className = 'guide-cat-title';
+        title.textContent = cat;
+        box.appendChild(title);
+        const pills = document.createElement('div');
+        pills.className = 'guide-pills';
+        (meta.tags || []).forEach(tag => {
+            const selected = asTagList(selectedGuideTags[cat]).includes(tag);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'guide-pill' + (selected ? ' selected' : '');
+            btn.textContent = `${tag} (${countGuideTag(cat, tag)})`;
+            btn.setAttribute('aria-label', `篩選 ${group.id} ${cat} ${tag}`);
+            btn.onclick = () => toggleGuideTag(cat, tag);
+            pills.appendChild(btn);
+        });
+        box.appendChild(pills);
+        legendDiv.appendChild(box);
+    });
+}
+
+function renderSearchManual() {
+    renderFacetTabs();
+    renderGuideTabs();
+    if (activeFacet === 'guide') renderGuideCategories();
+    else renderSimpleFacetPills();
+}
+
 function init() {
     rebuildCategoriesFromClassification();
 
@@ -1807,61 +2193,16 @@ function init() {
         cell.onclick = (e) => { e.stopPropagation(); showDetail(i, cell); };
         grid.appendChild(cell);
     }
-    
-    // 建立五大類分組 + 17類圖例
-    const legendDiv = document.getElementById('legend'); legendDiv.innerHTML = '';
-    const majors = CLASSIFICATION.majors && CLASSIFICATION.majors.length
-        ? CLASSIFICATION.majors
-        : Object.keys(MAJOR_COLORS).map(id => ({ id, hex: MAJOR_COLORS[id] }));
-    majors.forEach(major => {
-        const group = document.createElement('div');
-        group.className = 'legend-group';
-        const title = document.createElement('button');
-        title.type = 'button';
-        title.className = 'legend-group-title';
-        title.setAttribute('data-major', major.id);
-        title.style.background = (major.hex || MAJOR_COLORS[major.id] || '#e2e8f0') + '66';
-        title.innerHTML = `<span>${major.id}</span><span class="font-bold bg-white/80 px-2 py-0.5 rounded-full text-[10px]">${countMajor(major.id)}</span>`;
-        title.setAttribute('aria-label', `篩選五大類 ${major.id}`);
-        title.onclick = () => {
-            if (!sequentialPlayActive) stopSpeaking();
-            filterMajor(major.id);
-        };
-        group.appendChild(title);
-        (CLASSIFICATION.types || []).filter(t => t.major === major.id).forEach(t => {
-            const c = categories[t.id];
-            const item = document.createElement('button'); item.type = 'button'; item.className = "legend-item"; item.setAttribute('aria-label', `篩選${t.name}`);
-            item.setAttribute('data-type-id', t.id);
-            item.style.background = `${t.hex}33`;
-            item.style.borderLeft = `4px solid ${t.hex}`;
-            item.innerHTML = `<span class="flex items-center gap-1.5"><span class="type-dot" style="background:${t.hex}"></span><span class="text-sm text-slate-700">${t.name}</span></span><span class="font-bold bg-white/80 px-2.5 py-0.5 rounded-full text-xs">${c ? c.count : 0}</span>`;
-            item.onclick = () => {
-                if (!sequentialPlayActive) stopSpeaking();
-                filter(t.id);
-            };
-            group.appendChild(item);
-        });
-        legendDiv.appendChild(group);
-    });
 
+    renderSearchManual();
+    applyGridFilter();
 
     syncLandscapeLegendLayout();
     syncPanelSwitchButtons();
     
-    document.getElementById('resetBtn').onclick = () => { 
-        // 順序播放中：不取消當前朗讀，讓當前詩篇繼續朗讀
-        // 朗讀完成後 onSequentialPsalmEnd() 會檢查新的篩選類型（null = 全部詩篇）
-        if (!sequentialPlayActive) {
-            stopSpeaking();
-        }
-        document.querySelectorAll('.psalm-cell').forEach(c => { c.classList.remove('dimmed'); c.classList.remove('lit'); });
-        document.getElementById('resetBtn').classList.add('hidden'); 
-        clearLegendActive();
-        const display = document.getElementById('filterTypeDisplay');
-        display.classList.add('hidden');
-        display.textContent = '';
-        currentFilterTypeId = null;
-        currentFilterMajor = null;
+    document.getElementById('resetBtn').onclick = () => {
+        if (!sequentialPlayActive) stopSpeaking();
+        clearGuideFilters();
     };
 
 
@@ -1903,15 +2244,16 @@ function init() {
 let hasInitialized = false;
 function startApp() {
     if (hasInitialized) return;
-    hasInitialized = true;
-    if (!window.PSALM_APP_DATA) {
-        alert('找不到 psalm-data-17.js，請確認 HTML 與 psalm-data-17.js 在同一資料夾。');
-    } else if (!window.PSALM_APP_DATA.CLASSIFICATION) {
-        alert('資料檔缺少 17 類 CLASSIFICATION，請使用 psalm-data-17.js。');
+    SEARCH_INDEX = window.SEARCH_INDEX || {};
+    GUIDE_FILTER = buildGuideFilterFromIndex(SEARCH_INDEX);
+    if (!window.PSALM_APP_DATA || !SEARCH_INDEX.facets || !GUIDE_FILTER.groups.length) {
+        return;
     }
+    hasInitialized = true;
     init();
 }
 
+document.addEventListener('psalm-data-ready', startApp, { once: true });
 document.addEventListener('DOMContentLoaded', startApp, { once: true });
 window.addEventListener('pageshow', startApp);
 </script>
